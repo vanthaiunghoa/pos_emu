@@ -10,6 +10,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
+import javafx.stage.StageStyle;
 
 /**
  *
@@ -21,8 +22,14 @@ public class Pos_emu extends Application {
     public void start(Stage stage) throws Exception {
         Parent root = FXMLLoader.load(getClass().getResource("FXMLDocument.fxml"));
         
+        // Create the scene
         Scene scene = new Scene(root);
+        // Window without Minimize, Maximize buttons
+        stage.initStyle(StageStyle.UTILITY);
+        // Window not resizable
+        stage.setResizable(false);
         
+        // Add the scene to the stage and launch the stage
         stage.setScene(scene);
         stage.show();
     }
