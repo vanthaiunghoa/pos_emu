@@ -87,6 +87,18 @@ public class FXMLDocumentController implements Initializable {
         OutputLabel.setText("BUTTON VALID PRESSED");
     }    
     @FXML
+    private void ButtonSmartCardEvent(ActionEvent event) {
+        OutputLabel.setText("SMART CARD INSERTED");
+    }    
+    @FXML
+    private void ButtonClessEvent(ActionEvent event) {
+        OutputLabel.setText("CONTACTLESS CARD PASSED");
+    }    
+    @FXML
+    private void ButtonMagstripeEvent(ActionEvent event) {
+        OutputLabel.setText("MAGSTRIPE SWIPPED");
+    }    
+    @FXML
     private void ButtonQuitEvent(ActionEvent event) {
         Platform.exit();
         System.exit(0);
@@ -95,7 +107,7 @@ public class FXMLDocumentController implements Initializable {
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         // TODO
-        OutputLabel.setText("DESK/5000 Simualor");
+        OutputLabel.setText("DESK/5000 Emulator");
     }    
     
 }

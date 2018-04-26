@@ -8,7 +8,7 @@
 <?import javafx.scene.paint.*?>
 <?import javafx.scene.text.*?>
 
-<AnchorPane id="AnchorPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="741.2081298828125" prefWidth="436.0" style="-fx-background-color: white" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/2.2" fx:controller="pos_emu.FXMLDocumentController">
+<AnchorPane id="AnchorPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="741.2081298828125" prefWidth="436.0" style="-fx-background-color: lightgrey;" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="pos_emu.FXMLDocumentController">
   <children>
     <ImageView fitHeight="750.0" fitWidth="340.0" layoutX="-3.0" layoutY="-2.0" pickOnBounds="true" preserveRatio="true">
       <image>
@@ -35,12 +35,44 @@
     <Button fx:id="ButtonL" font="$x1" layoutX="50.0" layoutY="639.0" mnemonicParsing="false" onAction="#ButtonLEvent" prefHeight="41.0" prefWidth="37.0" style="-fx-background-color:transparent" text="" textAlignment="CENTER" textFill="WHITE" textOverrun="CLIP" />
     <Button fx:id="Button0" font="$x1" layoutX="109.0" layoutY="638.0" mnemonicParsing="false" onAction="#Button0Event" prefHeight="41.0" prefWidth="37.0" style="-fx-background-color:transparent" text="" textAlignment="CENTER" textFill="WHITE" textOverrun="CLIP" />
     <Button fx:id="ButtonPoint" font="$x1" layoutX="167.0" layoutY="639.0" mnemonicParsing="false" onAction="#ButtonPointEvent" prefHeight="41.0" prefWidth="37.0" style="-fx-background-color:transparent" text="" textAlignment="CENTER" textFill="WHITE" textOverrun="CLIP" />
-    <Button fx:id="ButtonQuit" font="$x1" layoutX="328.0" layoutY="688.0" minHeight="18.0" mnemonicParsing="false" onAction="#ButtonQuitEvent" prefHeight="32.0" prefWidth="94.0" text="QUIT" textAlignment="CENTER" textOverrun="CLIP" />
-    <Label fx:id="OutputLabel" layoutX="14.0" layoutY="9.0" prefHeight="32.0" prefWidth="408.0" style="-fx-background-color: grey" text="Label">
+    <Button fx:id="ButtonQuit" font="$x1" layoutX="328.0" layoutY="688.0" minHeight="18.0" mnemonicParsing="false" onAction="#ButtonQuitEvent" prefHeight="32.0" prefWidth="94.0" style="-fx-background-color: darkgrey;" text="QUIT" textAlignment="CENTER" textOverrun="CLIP" />
+    <Pane layoutX="57.0" layoutY="152.0" prefHeight="300.0" prefWidth="210.0" style="-fx-background-color: black" />
+      <Label fx:id="OutputLabel1" layoutX="11.0" layoutY="6.0" prefHeight="38.0" prefWidth="414.0" style="-fx-background-color: black;" text="LabelShadow">
+         <font>
+            <Font size="16.0" />
+         </font>
+      </Label>
+    <Label fx:id="OutputLabel" layoutX="14.0" layoutY="9.0" prefHeight="32.0" prefWidth="408.0" style="-fx-background-color: white;" text="LabelFront">
       <font>
         <Font size="16.0" />
       </font>
     </Label>
-    <Pane layoutX="57.0" layoutY="152.0" prefHeight="300.0" prefWidth="210.0" style="-fx-background-color: black" />
+      <Button fx:id="ButtonSmartCard" font="$x1" layoutX="333.0" layoutY="102.0" minHeight="10.0" mnemonicParsing="false" onAction="#ButtonSmartCardEvent" prefHeight="50.0" prefWidth="30.0" style="-fx-background-color: darkgrey;" text="ButtonSmartCard" textAlignment="CENTER" textOverrun="CLIP">
+         <graphic>
+            <ImageView fitHeight="64.0" fitWidth="64.0" pickOnBounds="true" preserveRatio="true">
+               <image>
+                  <Image url="@smartcard.png" />
+               </image>
+            </ImageView>
+         </graphic>
+      </Button>
+      <Button fx:id="ButtonCless" font="$x1" layoutX="333.0" layoutY="160.0" minHeight="10.0" mnemonicParsing="false" onAction="#ButtonClessEvent" prefHeight="50.0" prefWidth="30.0" style="-fx-background-color: darkgrey;" text="ButtonCless" textAlignment="CENTER" textOverrun="CLIP">
+         <graphic>
+            <ImageView fitHeight="64.0" fitWidth="64.0" pickOnBounds="true" preserveRatio="true">
+               <image>
+                  <Image url="@cless.png" />
+               </image>
+            </ImageView>
+         </graphic>
+      </Button>
+      <Button fx:id="ButtonMagstripe" font="$x1" layoutX="333.0" layoutY="218.0" minHeight="10.0" mnemonicParsing="false" onAction="#ButtonMagstripeEvent" prefHeight="50.0" prefWidth="30.0" style="-fx-background-color: darkgrey;" text="ButtonMagstripe" textAlignment="CENTER" textOverrun="CLIP">
+         <graphic>
+            <ImageView fitHeight="64.0" fitWidth="64.0" pickOnBounds="true" preserveRatio="true">
+               <image>
+                  <Image url="@magstripe.png" />
+               </image>
+            </ImageView>
+         </graphic>
+      </Button>
   </children>
 </AnchorPane>

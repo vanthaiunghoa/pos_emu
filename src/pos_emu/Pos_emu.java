@@ -31,6 +31,7 @@ public class Pos_emu extends Application {
         
         // Add the scene to the stage and launch the stage
         stage.setScene(scene);
+        stage.setTitle("INGENICO POS EMULATOR");
         stage.show();
     }
 
