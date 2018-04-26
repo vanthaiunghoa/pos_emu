@@ -5,6 +5,7 @@
  */
 package pos_emu;
 
+import java.awt.Color;
 import java.net.URL;
 import java.util.ResourceBundle;
 import javafx.application.Platform;
@@ -12,6 +13,11 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Label;
+import javafx.scene.text.Font;
+import javafx.scene.text.FontPosture;
+import javafx.scene.text.FontWeight;
+import javafx.scene.text.Text;
+import javafx.scene.text.TextFlow;
 
 /**
  *
@@ -21,7 +27,9 @@ public class FXMLDocumentController implements Initializable {
     
     @FXML
     private Label OutputLabel;
-    
+    @FXML
+    private TextFlow myTextFlow;
+            
     @FXML
     private void Button0Event(ActionEvent event) {
         OutputLabel.setText("BUTTON 0 PRESSED");
@@ -89,6 +97,12 @@ public class FXMLDocumentController implements Initializable {
     @FXML
     private void ButtonSmartCardEvent(ActionEvent event) {
         OutputLabel.setText("SMART CARD INSERTED");
+
+     Text text1 = new Text("Big italic red text");
+     text1.setFont(Font.font("Helvetica", FontPosture.ITALIC, 40));
+     Text text2 = new Text(" little bold blue text");
+     text2.setFont(Font.font("Helvetica", FontWeight.BOLD, 10));
+     myTextFlow = new TextFlow(text1, text2);                
     }    
     @FXML
     private void ButtonClessEvent(ActionEvent event) {

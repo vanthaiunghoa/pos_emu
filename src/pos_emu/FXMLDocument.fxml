@@ -15,39 +15,37 @@
         <Image url="@desk-5000.png" />
       </image>
     </ImageView>
-    <Button fx:id="Button_1" layoutX="45.0" layoutY="488.0" mnemonicParsing="false" onAction="#Button1Event" prefHeight="41.0" prefWidth="37.0" style="-fx-background-color:transparent" text="" textAlignment="CENTER" textFill="WHITE" textOverrun="CLIP">
+    <Button fx:id="Button_1" layoutX="45.0" layoutY="488.0" mnemonicParsing="false" onAction="#Button1Event" prefHeight="41.0" prefWidth="37.0" style="-fx-background-color:transparent" textAlignment="CENTER" textFill="WHITE" textOverrun="CLIP">
       <font>
         <Font name="System Bold" size="16.0" fx:id="x1" />
       </font>
     </Button>
-    <Button fx:id="ButtonF" font="$x1" layoutX="235.0" layoutY="488.0" mnemonicParsing="false" onAction="#ButtonFEvent" prefHeight="41.0" prefWidth="37.000099999997474" style="-fx-background-color: transparent" text="" textAlignment="CENTER" textOverrun="CLIP" visible="true" />
-    <Button fx:id="ButtonCancel" font="$x1" layoutX="235.0" layoutY="540.0" mnemonicParsing="false" onAction="#ButtonCancelEvent" prefHeight="41.0" prefWidth="37.0" style="-fx-background-color:transparent&#10;" text="" textAlignment="CENTER" textOverrun="CLIP" />
-    <Button fx:id="ButtonCorr" font="$x1" layoutX="235.0" layoutY="581.0" mnemonicParsing="false" onAction="#ButtonCorrEvent" prefHeight="41.0" prefWidth="37.0" style="-fx-background-color:transparent" text="" textAlignment="CENTER" textOverrun="CLIP" />
-    <Button fx:id="ButtonValid" font="$x1" layoutX="235.0" layoutY="633.0" mnemonicParsing="false" onAction="#ButtonValidEvent" prefHeight="41.0" prefWidth="37.0" style="-fx-background-color:transparent" text="" textAlignment="CENTER" textOverrun="CLIP" />
-    <Button fx:id="Button2" font="$x1" layoutX="106.0" layoutY="488.0" mnemonicParsing="false" onAction="#Button2Event" prefHeight="41.0" prefWidth="37.0" style="-fx-background-color:transparent" text="" textAlignment="CENTER" textFill="WHITE" textOverrun="CLIP" />
-    <Button fx:id="Button3" font="$x1" layoutX="165.0" layoutY="488.0" mnemonicParsing="false" onAction="#Button3Event" prefHeight="41.0" prefWidth="37.0" style="-fx-background-color:transparent" text="" textAlignment="CENTER" textFill="WHITE" textOverrun="CLIP" />
-    <Button fx:id="Button4" font="$x1" layoutX="47.0" layoutY="538.0" mnemonicParsing="false" onAction="#Button4Event" prefHeight="41.0" prefWidth="37.0" style="-fx-background-color:transparent" text="" textAlignment="CENTER" textFill="WHITE" textOverrun="CLIP" />
-    <Button fx:id="Button5" font="$x1" layoutX="106.0" layoutY="540.0" mnemonicParsing="false" onAction="#Button5Event" prefHeight="41.0" prefWidth="37.0" style="-fx-background-color:transparent" text="" textAlignment="CENTER" textFill="WHITE" textOverrun="CLIP" />
-    <Button fx:id="Button6" font="$x1" layoutX="165.0" layoutY="540.0" mnemonicParsing="false" onAction="#Button6Event" prefHeight="41.0" prefWidth="37.0" style="-fx-background-color:transparent" text="" textAlignment="CENTER" textFill="WHITE" textOverrun="CLIP" />
-    <Button fx:id="Button7" font="$x1" layoutX="50.0" layoutY="585.0" mnemonicParsing="false" onAction="#Button7Event" prefHeight="41.0" prefWidth="37.0" style="-fx-background-color:transparent" text="" textAlignment="CENTER" textFill="WHITE" textOverrun="CLIP" />
-    <Button fx:id="Button8" font="$x1" layoutX="106.0" layoutY="589.0" mnemonicParsing="false" onAction="#Button8Event" prefHeight="41.0" prefWidth="37.0" style="-fx-background-color:transparent" text="" textAlignment="CENTER" textFill="WHITE" textOverrun="CLIP" />
-    <Button fx:id="Button9" font="$x1" layoutX="167.0" layoutY="589.0" mnemonicParsing="false" onAction="#Button9Event" prefHeight="41.0" prefWidth="37.0" style="-fx-background-color:transparent" text="" textAlignment="CENTER" textFill="WHITE" textOverrun="CLIP" />
-    <Button fx:id="ButtonL" font="$x1" layoutX="50.0" layoutY="639.0" mnemonicParsing="false" onAction="#ButtonLEvent" prefHeight="41.0" prefWidth="37.0" style="-fx-background-color:transparent" text="" textAlignment="CENTER" textFill="WHITE" textOverrun="CLIP" />
-    <Button fx:id="Button0" font="$x1" layoutX="109.0" layoutY="638.0" mnemonicParsing="false" onAction="#Button0Event" prefHeight="41.0" prefWidth="37.0" style="-fx-background-color:transparent" text="" textAlignment="CENTER" textFill="WHITE" textOverrun="CLIP" />
-    <Button fx:id="ButtonPoint" font="$x1" layoutX="167.0" layoutY="639.0" mnemonicParsing="false" onAction="#ButtonPointEvent" prefHeight="41.0" prefWidth="37.0" style="-fx-background-color:transparent" text="" textAlignment="CENTER" textFill="WHITE" textOverrun="CLIP" />
+    <Button fx:id="ButtonF" font="$x1" layoutX="235.0" layoutY="488.0" mnemonicParsing="false" onAction="#ButtonFEvent" prefHeight="41.0" prefWidth="37.000099999997474" style="-fx-background-color: transparent" textAlignment="CENTER" textOverrun="CLIP" visible="true" />
+    <Button fx:id="ButtonCancel" font="$x1" layoutX="235.0" layoutY="540.0" mnemonicParsing="false" onAction="#ButtonCancelEvent" prefHeight="41.0" prefWidth="37.0" style="-fx-background-color:transparent&#10;" textAlignment="CENTER" textOverrun="CLIP" />
+    <Button fx:id="ButtonCorr" font="$x1" layoutX="235.0" layoutY="581.0" mnemonicParsing="false" onAction="#ButtonCorrEvent" prefHeight="41.0" prefWidth="37.0" style="-fx-background-color:transparent" textAlignment="CENTER" textOverrun="CLIP" />
+    <Button fx:id="ButtonValid" font="$x1" layoutX="235.0" layoutY="633.0" mnemonicParsing="false" onAction="#ButtonValidEvent" prefHeight="41.0" prefWidth="37.0" style="-fx-background-color:transparent" textAlignment="CENTER" textOverrun="CLIP" />
+    <Button fx:id="Button2" font="$x1" layoutX="106.0" layoutY="488.0" mnemonicParsing="false" onAction="#Button2Event" prefHeight="41.0" prefWidth="37.0" style="-fx-background-color:transparent" textAlignment="CENTER" textFill="WHITE" textOverrun="CLIP" />
+    <Button fx:id="Button4" font="$x1" layoutX="47.0" layoutY="538.0" mnemonicParsing="false" onAction="#Button4Event" prefHeight="41.0" prefWidth="37.0" style="-fx-background-color:transparent" textAlignment="CENTER" textFill="WHITE" textOverrun="CLIP" />
+    <Button fx:id="Button5" font="$x1" layoutX="106.0" layoutY="540.0" mnemonicParsing="false" onAction="#Button5Event" prefHeight="41.0" prefWidth="37.0" style="-fx-background-color:transparent" textAlignment="CENTER" textFill="WHITE" textOverrun="CLIP" />
+    <Button fx:id="Button6" font="$x1" layoutX="165.0" layoutY="540.0" mnemonicParsing="false" onAction="#Button6Event" prefHeight="41.0" prefWidth="37.0" style="-fx-background-color:transparent" textAlignment="CENTER" textFill="WHITE" textOverrun="CLIP" />
+    <Button fx:id="Button7" font="$x1" layoutX="50.0" layoutY="585.0" mnemonicParsing="false" onAction="#Button7Event" prefHeight="41.0" prefWidth="37.0" style="-fx-background-color:transparent" textAlignment="CENTER" textFill="WHITE" textOverrun="CLIP" />
+    <Button fx:id="Button8" font="$x1" layoutX="106.0" layoutY="589.0" mnemonicParsing="false" onAction="#Button8Event" prefHeight="41.0" prefWidth="37.0" style="-fx-background-color:transparent" textAlignment="CENTER" textFill="WHITE" textOverrun="CLIP" />
+    <Button fx:id="Button9" font="$x1" layoutX="167.0" layoutY="589.0" mnemonicParsing="false" onAction="#Button9Event" prefHeight="41.0" prefWidth="37.0" style="-fx-background-color:transparent" textAlignment="CENTER" textFill="WHITE" textOverrun="CLIP" />
+    <Button fx:id="ButtonL" font="$x1" layoutX="50.0" layoutY="639.0" mnemonicParsing="false" onAction="#ButtonLEvent" prefHeight="41.0" prefWidth="37.0" style="-fx-background-color:transparent" textAlignment="CENTER" textFill="WHITE" textOverrun="CLIP" />
+    <Button fx:id="Button0" font="$x1" layoutX="109.0" layoutY="638.0" mnemonicParsing="false" onAction="#Button0Event" prefHeight="41.0" prefWidth="37.0" style="-fx-background-color:transparent" textAlignment="CENTER" textFill="WHITE" textOverrun="CLIP" />
+    <Button fx:id="ButtonPoint" font="$x1" layoutX="167.0" layoutY="639.0" mnemonicParsing="false" onAction="#ButtonPointEvent" prefHeight="41.0" prefWidth="37.0" style="-fx-background-color:transparent" textAlignment="CENTER" textFill="WHITE" textOverrun="CLIP" />
     <Button fx:id="ButtonQuit" font="$x1" layoutX="328.0" layoutY="688.0" minHeight="18.0" mnemonicParsing="false" onAction="#ButtonQuitEvent" prefHeight="32.0" prefWidth="94.0" style="-fx-background-color: darkgrey;" text="QUIT" textAlignment="CENTER" textOverrun="CLIP" />
-    <Pane layoutX="57.0" layoutY="152.0" prefHeight="300.0" prefWidth="210.0" style="-fx-background-color: black" />
-      <Label fx:id="OutputLabel1" layoutX="11.0" layoutY="6.0" prefHeight="38.0" prefWidth="414.0" style="-fx-background-color: black;" text="LabelShadow">
+      <Label fx:id="OutputLabel1" layoutX="11.0" layoutY="6.0" prefHeight="38.0" prefWidth="414.0" style="-fx-background-color: black;">
          <font>
             <Font size="16.0" />
          </font>
       </Label>
-    <Label fx:id="OutputLabel" layoutX="14.0" layoutY="9.0" prefHeight="32.0" prefWidth="408.0" style="-fx-background-color: white;" text="LabelFront">
+    <Label fx:id="OutputLabel" layoutX="14.0" layoutY="9.0" prefHeight="32.0" prefWidth="408.0" style="-fx-background-color: white;">
       <font>
         <Font size="16.0" />
       </font>
     </Label>
-      <Button fx:id="ButtonSmartCard" font="$x1" layoutX="333.0" layoutY="102.0" minHeight="10.0" mnemonicParsing="false" onAction="#ButtonSmartCardEvent" prefHeight="50.0" prefWidth="30.0" style="-fx-background-color: darkgrey;" text="ButtonSmartCard" textAlignment="CENTER" textOverrun="CLIP">
+      <Button fx:id="ButtonSmartCard" font="$x1" layoutX="333.0" layoutY="102.0" minHeight="10.0" mnemonicParsing="false" onAction="#ButtonSmartCardEvent" prefHeight="50.0" prefWidth="30.0" style="-fx-background-color: darkgrey;" textAlignment="CENTER" textOverrun="CLIP">
          <graphic>
             <ImageView fitHeight="64.0" fitWidth="64.0" pickOnBounds="true" preserveRatio="true">
                <image>
@@ -56,7 +54,7 @@
             </ImageView>
          </graphic>
       </Button>
-      <Button fx:id="ButtonCless" font="$x1" layoutX="333.0" layoutY="160.0" minHeight="10.0" mnemonicParsing="false" onAction="#ButtonClessEvent" prefHeight="50.0" prefWidth="30.0" style="-fx-background-color: darkgrey;" text="ButtonCless" textAlignment="CENTER" textOverrun="CLIP">
+      <Button fx:id="ButtonCless" font="$x1" layoutX="333.0" layoutY="160.0" minHeight="10.0" mnemonicParsing="false" onAction="#ButtonClessEvent" prefHeight="50.0" prefWidth="30.0" style="-fx-background-color: darkgrey;" textAlignment="CENTER" textOverrun="CLIP">
          <graphic>
             <ImageView fitHeight="64.0" fitWidth="64.0" pickOnBounds="true" preserveRatio="true">
                <image>
@@ -65,7 +63,7 @@
             </ImageView>
          </graphic>
       </Button>
-      <Button fx:id="ButtonMagstripe" font="$x1" layoutX="333.0" layoutY="218.0" minHeight="10.0" mnemonicParsing="false" onAction="#ButtonMagstripeEvent" prefHeight="50.0" prefWidth="30.0" style="-fx-background-color: darkgrey;" text="ButtonMagstripe" textAlignment="CENTER" textOverrun="CLIP">
+      <Button fx:id="ButtonMagstripe" font="$x1" layoutX="333.0" layoutY="218.0" minHeight="10.0" mnemonicParsing="false" onAction="#ButtonMagstripeEvent" prefHeight="50.0" prefWidth="30.0" style="-fx-background-color: darkgrey;" textAlignment="CENTER" textOverrun="CLIP">
          <graphic>
             <ImageView fitHeight="64.0" fitWidth="64.0" pickOnBounds="true" preserveRatio="true">
                <image>
@@ -74,5 +72,50 @@
             </ImageView>
          </graphic>
       </Button>
+    <Pane layoutX="57.0" layoutY="152.0" prefHeight="300.0" prefWidth="210.0" style="-fx-background-color: black" />
+      <TextFlow fx:id="myTextFlow" layoutX="57.0" layoutY="146.0" prefHeight="300.0" prefWidth="210.0">
+         <children>
+            <TextField fx:id="TextLine1" editable="false" prefHeight="39.0" prefWidth="211.0" style="-fx-background-color: transparent; -fx-text-inner-color: white;" text="123456789012345678">
+               <font>
+                  <Font name="Arial Unicode MS" size="18.0" />
+               </font>
+            </TextField>
+            <TextField fx:id="TextLine2" editable="false" prefHeight="39.0" prefWidth="211.0" style="-fx-background-color: transparent; -fx-text-inner-color: white;" text="123456789012345678">
+               <font>
+                  <Font name="Arial Unicode MS" size="18.0" />
+               </font>
+            </TextField>
+            <TextField fx:id="TextLine3" editable="false" prefHeight="39.0" prefWidth="211.0" style="-fx-background-color: transparent; -fx-text-inner-color: white;" text="123456789012345678">
+               <font>
+                  <Font name="Arial Unicode MS" size="18.0" />
+               </font>
+            </TextField>
+            <TextField fx:id="TextLine4" editable="false" prefHeight="39.0" prefWidth="211.0" style="-fx-background-color: transparent; -fx-text-inner-color: white;" text="123456789012345678">
+               <font>
+                  <Font name="Arial Unicode MS" size="18.0" />
+               </font>
+            </TextField>
+            <TextField fx:id="TextLine5" editable="false" prefHeight="39.0" prefWidth="211.0" style="-fx-background-color: transparent; -fx-text-inner-color: white;" text="123456789012345678">
+               <font>
+                  <Font name="Arial Unicode MS" size="18.0" />
+               </font>
+            </TextField>
+            <TextField fx:id="TextLine6" editable="false" prefHeight="39.0" prefWidth="211.0" style="-fx-background-color: transparent; -fx-text-inner-color: white;" text="123456789012345678">
+               <font>
+                  <Font name="Arial Unicode MS" size="18.0" />
+               </font>
+            </TextField>
+            <TextField fx:id="TextLine7" editable="false" prefHeight="39.0" prefWidth="211.0" style="-fx-background-color: transparent; -fx-text-inner-color: white;" text="123456789012345678">
+               <font>
+                  <Font name="Arial Unicode MS" size="18.0" />
+               </font>
+            </TextField>
+            <TextField fx:id="TextLine8" editable="false" prefHeight="39.0" prefWidth="211.0" style="-fx-background-color: transparent; -fx-text-inner-color: white;" text="123456789012345678">
+               <font>
+                  <Font name="Arial Unicode MS" size="18.0" />
+               </font>
+            </TextField>
+         </children>
+      </TextFlow>
   </children>
 </AnchorPane>
