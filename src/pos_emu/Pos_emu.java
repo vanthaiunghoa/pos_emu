@@ -7,10 +7,11 @@ package pos_emu;
 
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
+import javafx.scene.image.Image;
 
 /**
  *
@@ -25,9 +26,13 @@ public class Pos_emu extends Application {
         // Create the scene
         Scene scene = new Scene(root);
         // Window without Minimize, Maximize buttons
-        stage.initStyle(StageStyle.UTILITY);
+        stage.initStyle(StageStyle.DECORATED);
         // Window not resizable
         stage.setResizable(false);
+     
+        // Adding a icon 
+        Image appliIcon = new Image(Pos_emu.class.getResourceAsStream( "resource/icon.png" ));
+        stage.getIcons().add(appliIcon); 
         
         // Add the scene to the stage and launch the stage
         stage.setScene(scene);

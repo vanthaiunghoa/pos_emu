@@ -98,11 +98,11 @@ public class FXMLDocumentController implements Initializable {
     private void ButtonSmartCardEvent(ActionEvent event) {
         OutputLabel.setText("SMART CARD INSERTED");
 
-     Text text1 = new Text("Big italic red text");
-     text1.setFont(Font.font("Helvetica", FontPosture.ITALIC, 40));
-     Text text2 = new Text(" little bold blue text");
-     text2.setFont(Font.font("Helvetica", FontWeight.BOLD, 10));
-     myTextFlow = new TextFlow(text1, text2);                
+//     Text text1 = new Text("Big italic red text");
+//     text1.setFont(Font.font("Helvetica", FontPosture.ITALIC, 40));
+//     Text text2 = new Text(" little bold blue text");
+//     text2.setFont(Font.font("Helvetica", FontWeight.BOLD, 10));
+//     myTextFlow = new TextFlow(text1, text2);                
     }    
     @FXML
     private void ButtonClessEvent(ActionEvent event) {
