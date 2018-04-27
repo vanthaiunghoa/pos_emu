@@ -27,8 +27,6 @@ public class FXMLDocumentController implements Initializable {
     
     @FXML
     private Label OutputLabel;
-    @FXML
-    private TextFlow myTextFlow;
             
     @FXML
     private void Button0Event(ActionEvent event) {
@@ -97,12 +95,6 @@ public class FXMLDocumentController implements Initializable {
     @FXML
     private void ButtonSmartCardEvent(ActionEvent event) {
         OutputLabel.setText("SMART CARD INSERTED");
-
-//     Text text1 = new Text("Big italic red text");
-//     text1.setFont(Font.font("Helvetica", FontPosture.ITALIC, 40));
-//     Text text2 = new Text(" little bold blue text");
-//     text2.setFont(Font.font("Helvetica", FontWeight.BOLD, 10));
-//     myTextFlow = new TextFlow(text1, text2);                
     }    
     @FXML
     private void ButtonClessEvent(ActionEvent event) {
