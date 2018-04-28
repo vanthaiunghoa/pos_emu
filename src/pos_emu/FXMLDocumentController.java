@@ -5,7 +5,6 @@
  */
 package pos_emu;
 
-import java.awt.Color;
 import java.net.URL;
 import java.util.ResourceBundle;
 import javafx.application.Platform;
@@ -13,11 +12,7 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Label;
-import javafx.scene.text.Font;
-import javafx.scene.text.FontPosture;
-import javafx.scene.text.FontWeight;
-import javafx.scene.text.Text;
-import javafx.scene.text.TextFlow;
+import javafx.scene.layout.Pane;
 
 /**
  *
@@ -26,8 +21,10 @@ import javafx.scene.text.TextFlow;
 public class FXMLDocumentController implements Initializable {
     
     @FXML
-    private Label OutputLabel;
-            
+    public Label OutputLabel;
+    public Label PromptText;
+    public Pane PosScreen;
+    
     @FXML
     private void Button0Event(ActionEvent event) {
         OutputLabel.setText("BUTTON 0 PRESSED");
