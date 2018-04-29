@@ -71,14 +71,19 @@ public class Pos_emu extends Application {
         // Wait for a command
         new Thread(() -> {
             try {
-                System.out.println("Wait on TCP listener");
-                tcpListener.WaitTCPMessage();
+                // Infinite loop to be always listening 
+                do {
+                    System.out.println("Wait on TCP listener");
+                    tcpListener.WaitTCPMessage();
+                    // Pause for 100 ms between each thread, i.e. each command
+                    Thread.sleep(100);
+                } while (true);
             } catch (Exception e) {
                 System.out.println("Error tcp-ip: " + e);
             }
-        }).start();        
+        }).start();
     }
-    
+
     /**
      * @param args the command line arguments
      */
