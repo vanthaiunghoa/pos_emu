@@ -29,10 +29,21 @@ public class TCPServer
         // Create a socket on the predefined port
         try {
             welcomeSocket = new ServerSocket(internalTcpPort);
-        } catch (Exception e)
+        } catch (IOException e)
         {
             System.out.println("Error Starting TCP server:" + e);
         }         
+    }
+    
+    public void RestartTCPServer()
+    {
+        try {
+            welcomeSocket.close();
+            StartTCPServer();
+        } catch (IOException e)
+        {
+            System.out.println("Error ReStarting TCP server:" + e);
+        }          
     }
     
     public void WaitTCPMessage() throws Exception

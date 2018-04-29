@@ -5,6 +5,7 @@
 package pos_emu;
 
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Pos;
 import javafx.stage.Stage;
@@ -12,6 +13,7 @@ import javafx.stage.StageStyle;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 
 /**
  *
@@ -43,7 +45,7 @@ public class Pos_emu extends Application {
         // Adding a icon 
         Image appliIcon = new Image(Pos_emu.class.getResourceAsStream( "resource/icon.png" ));
         stage.getIcons().add(appliIcon); 
-              
+        
         // Start the terminal boot
         StartPOSBoot();
         
@@ -56,6 +58,7 @@ public class Pos_emu extends Application {
     /**
      * Start the POS boot sequence
      */
+    @SuppressWarnings("SleepWhileInLoop")
     public void StartPOSBoot()
     {
         // Set font to white
@@ -70,17 +73,21 @@ public class Pos_emu extends Application {
         
         // Wait for a command
         new Thread(() -> {
-            try {
-                // Infinite loop to be always listening 
-                do {
+            do {
+                try {
+                    // Infinite loop to be always listening 
                     System.out.println("Wait on TCP listener");
                     tcpListener.WaitTCPMessage();
+                    
                     // Pause for 100 ms between each thread, i.e. each command
                     Thread.sleep(100);
-                } while (true);
-            } catch (Exception e) {
-                System.out.println("Error tcp-ip: " + e);
-            }
+                } catch (Exception e) {
+                    System.out.println("Error: " + e);
+                    
+                    // Restart TCP/IP listener                   
+                    tcpListener.RestartTCPServer();
+                }                
+            } while (true);
         }).start();
     }
 
