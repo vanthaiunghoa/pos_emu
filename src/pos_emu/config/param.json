@@ -1,0 +1,5 @@
+{
+    "app_name" : "pos_emu",
+    "protocol_version": "0.1.0",
+    "ip_port": 8999
+}

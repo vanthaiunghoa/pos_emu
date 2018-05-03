@@ -49,7 +49,6 @@ public class TCPServer
     public void WaitTCPMessage() throws Exception
     {
         String receivedMessage;
-        String messageToSend;
         
         // For a frame reception
         Socket connectionSocket = welcomeSocket.accept();
@@ -57,12 +56,13 @@ public class TCPServer
         DataOutputStream outToClient = new DataOutputStream(connectionSocket.getOutputStream());
         receivedMessage = inFromClient.readLine();
         System.out.println("Received: " + receivedMessage);
-        
+   
         // Execute the command
         internalCmdInterpreter.ExecuteCommand(receivedMessage);
         
         // Send OK response
-        messageToSend = "OK\n";
-        outToClient.writeBytes(messageToSend);
+        String outMessage = "{\"rsp\":\"ok\",\"protocol_version\": \"0.1.0\"}";
+        outToClient.writeBytes(outMessage);
+        System.out.println("Sent: " + outMessage);        
     }
 }
