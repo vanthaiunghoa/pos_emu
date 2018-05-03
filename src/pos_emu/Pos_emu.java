@@ -91,8 +91,7 @@ public class Pos_emu extends Application {
     {
         BufferedReader bufferedReader = null;
         try {
-            bufferedReader = new BufferedReader(new FileReader(param_json_path));
-        
+            bufferedReader = new BufferedReader(new FileReader(param_json_path));        
         } catch(FileNotFoundException e) 
         {
             System.out.println("Configuration File not found ! - error " + e);
@@ -129,7 +128,7 @@ public class Pos_emu extends Application {
                     tcpListener.WaitTCPMessage();
                     
                     // Pause for 100 ms between each thread, i.e. each command
-                    Thread.sleep(100);
+                    Thread.sleep(1);
                 } catch (Exception e) {
                     System.out.println("Network Error: " + e);
                     
