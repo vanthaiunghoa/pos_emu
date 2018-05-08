@@ -11,7 +11,7 @@ import java.net.*;
 public class TCPServer 
 {    
     private final int internalTcpPort;
-    private ServerSocket welcomeSocket;
+    private ServerSocket inSocket;
     private CommandInterpreter internalCmdInterpreter;
     
     TCPServer(CommandInterpreter cmdInter, int TcpPort)
@@ -28,7 +28,7 @@ public class TCPServer
         
         // Create a socket on the predefined port
         try {
-            welcomeSocket = new ServerSocket(internalTcpPort);
+            inSocket = new ServerSocket(internalTcpPort);
         } catch (IOException e)
         {
             System.out.println("Error Starting TCP server:" + e);
@@ -38,7 +38,7 @@ public class TCPServer
     public void RestartTCPServer()
     {
         try {
-            welcomeSocket.close();
+            inSocket.close();
             StartTCPServer();
         } catch (IOException e)
         {
@@ -48,21 +48,48 @@ public class TCPServer
     
     public void WaitTCPMessage() throws Exception
     {
-        String receivedMessage;
+        // Start server
+        String clientSentence;
+        FileInputStream in = null;
         
-        // For a frame reception
-        Socket connectionSocket = welcomeSocket.accept();
-        BufferedReader inFromClient = new BufferedReader(new InputStreamReader(connectionSocket.getInputStream()));
-        DataOutputStream outToClient = new DataOutputStream(connectionSocket.getOutputStream());
-        receivedMessage = inFromClient.readLine();
-        System.out.println("Received: " + receivedMessage);
-   
-        // Execute the command
-        internalCmdInterpreter.ExecuteCommand(receivedMessage);
-        
-        // Send OK response
-        String outMessage = "{\"rsp\":\"ok\",\"protocol_version\": \"0.1.0\"}";
-        outToClient.writeBytes(outMessage);
-        System.out.println("Sent: " + outMessage);        
+        try {
+            while (true) {
+                try (Socket connectionSocket = inSocket.accept()) {
+                    BufferedReader inFromClient = new BufferedReader(new InputStreamReader(connectionSocket.getInputStream()));
+                    DataOutputStream outToClient = new DataOutputStream(connectionSocket.getOutputStream());
+                    clientSentence = inFromClient.readLine();
+                    if (clientSentence == null)
+                        clientSentence = "WARNING empty received\n";
+                    System.out.println("Received: " + clientSentence);
+                    
+                    // Execute the command
+                    internalCmdInterpreter.ExecuteCommand(clientSentence);
+                    
+                    // Send the response
+                    try {
+                        in = new FileInputStream("e:\\rsp.json");
+                    } catch(FileNotFoundException ex) {
+                        System.out.println("File not found - " + ex);
+                    }
+                    
+                    byte[] bytes = new byte[16 * 1024];
+                    
+                    int count;
+                    while ((count = in.read(bytes)) > 0) {
+                        System.out.println("bytes: " + new String(bytes, "UTF-8"));
+                        outToClient.write(bytes, 0, count);
+                    }
+                    
+                    in.close();
+                    outToClient.close();
+                }
+                catch(Exception e) {
+                    System.out.println("Network Error: " + e);    
+                }
+                Thread.sleep(1);
+            }
+        } catch (InterruptedException e) {
+            System.out.println("Network Error: " + e);
+        }
     }
 }
