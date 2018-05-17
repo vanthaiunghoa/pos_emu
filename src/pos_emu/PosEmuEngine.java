@@ -15,47 +15,7 @@ import javafx.scene.text.Font;
 class PosEmuEngine
 {
     private final int CHAR_SIZE = 18;
-
-    public enum PosKeyCode {
-        NO_KEY,
-        NUM_0,
-        NUM_1,
-        NUM_2,
-        NUM_3,
-        NUM_4,
-        NUM_5,
-        NUM_6,
-        NUM_7,
-        NUM_8,
-        NUM_9,
-        NUM_VAL,
-        NUM_CORR,
-        NUM_CANCEL,
-        NUM_MENU,
-        NUM_POINT,
-        NUM_F
-    }
     
-    public enum State
-    {
-        STATE_IDLE,
-        STATE_MENU_SCREEN,
-        STATE_AMOUNT,
-        STATE_CARD_WAITING,
-        TRANSACTION
-    }
-    
-    public enum PosEvent
-    {
-        NO_EVENT,
-        KEY_PRESSED,
-        TOUCHSCREEN,
-        COMM_MESSAGE,
-        ICC_INSERTED,
-        CARD_SWIPED,
-        CLESS_CARD
-    }
-        
     private final FXMLDocumentController internalIhmController;
     private final ParamConfigFile internalParamData;
     
@@ -68,9 +28,9 @@ class PosEmuEngine
         internalParamData = theParamData;
     }    
     
-    public void StartEngine(State stateToFix)
+    public void StartEngine(PosEnums.State stateToFix)
     {
-        State currentState = State.STATE_IDLE;
+        PosEnums.State currentState = PosEnums.State.STATE_IDLE;
         
         switch(currentState)
         {
@@ -140,9 +100,9 @@ class PosEmuEngine
         }
     }
     
-    public void EventReceived(PosEvent receivedEvent, PosKeyCode keyValue)
+    public void EventReceived(PosEnums.PosEvent receivedEvent, PosEnums.PosKeyCode keyValue)
     {
-        StartEngine(State.STATE_AMOUNT);
+        StartEngine(PosEnums.State.STATE_AMOUNT);
     }
     
     private int CenterMessage(String msg)

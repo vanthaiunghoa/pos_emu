@@ -24,14 +24,14 @@ public class FXMLDocumentController implements Initializable {
     public Label OutputLabel;
     public Label PromptText;
     public Pane PosScreen;    
-    private PosEmuEngine.PosEvent eventAvailable = PosEmuEngine.PosEvent.NO_EVENT;
-    private PosEmuEngine.PosKeyCode eventKeyCode = PosEmuEngine.PosKeyCode.NO_KEY;
+    private PosEnums.PosEvent eventAvailable = PosEnums.PosEvent.NO_EVENT;
+    private PosEnums.PosKeyCode eventKeyCode = PosEnums.PosKeyCode.NO_KEY;
     
     @FXML
     private void Button0Event(ActionEvent event) {
         OutputLabel.setText("BUTTON 0 PRESSED");
-        eventAvailable = PosEmuEngine.PosEvent.KEY_PRESSED;
-        eventKeyCode = PosEmuEngine.PosKeyCode.NUM_0;
+        eventAvailable = PosEnums.PosEvent.KEY_PRESSED;
+        eventKeyCode = PosEnums.PosKeyCode.NUM_0;
     }
     @FXML
     private void Button1Event(ActionEvent event) {
@@ -111,17 +111,17 @@ public class FXMLDocumentController implements Initializable {
         System.exit(0);
     }    
 
-    public PosEmuEngine.PosEvent IsEventAvailable()
+    public PosEnums.PosEvent IsEventAvailable()
     {
-        PosEmuEngine.PosEvent retEvent = eventAvailable;
-        eventAvailable = PosEmuEngine.PosEvent.NO_EVENT;
+        PosEnums.PosEvent retEvent = eventAvailable;
+        eventAvailable = PosEnums.PosEvent.NO_EVENT;
         return retEvent;
     }
 
-    public PosEmuEngine.PosKeyCode GetKeyCode()
+    public PosEnums.PosKeyCode GetKeyCode()
     {        
-        PosEmuEngine.PosKeyCode retKeyCode = eventKeyCode;
-        eventKeyCode = PosEmuEngine.PosKeyCode.NO_KEY;
+        PosEnums.PosKeyCode retKeyCode = eventKeyCode;
+        eventKeyCode = PosEnums.PosKeyCode.NO_KEY;
         return retKeyCode;
     }
         

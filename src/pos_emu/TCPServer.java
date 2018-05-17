@@ -11,7 +11,7 @@ import java.net.*;
 public class TCPServer 
 {    
     private final int internalTcpPort;
-    private ServerSocket welcomeSocket;
+    private ServerSocket inSocket;
     private final CommandInterpreter internalCmdInterpreter;
     
     TCPServer(CommandInterpreter cmdInter, int TcpPort)

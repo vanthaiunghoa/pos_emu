@@ -19,6 +19,8 @@ import com.google.gson.Gson;
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javafx.application.Platform;
 import javafx.stage.WindowEvent;
 
@@ -45,7 +47,7 @@ public class Pos_emu extends Application {
         FXMLLoader loader = new FXMLLoader(getClass().getResource("FXMLDocument.fxml"));
         Parent root = loader.load();
 
-        // First display working directory
+        // First display workping directory
         System.out.println("Working Directory = " + System.getProperty("user.dir"));
                
         //Now we have access to getController() through the instance... don't forget the type cast
@@ -78,11 +80,14 @@ public class Pos_emu extends Application {
             System.exit(0);
         });
                 
+        // The event listener is the thread which waits for events like key press, card insertion, etc.
+        StartEventListener(ihmController, internalPosEmuEngine);
+        
         // Start the terminal boot
-        StartPOSBoot();
+        StartPOSBoot();        
         
         // Start the IDLE Screen
-        internalPosEmuEngine.StartEngine(PosEmuEngine.State.STATE_IDLE);
+        internalPosEmuEngine.StartEngine(PosEnums.State.STATE_IDLE);
         
         // Add the scene to the stage and launch the stage
         stage.setScene(scene);
@@ -150,10 +155,44 @@ public class Pos_emu extends Application {
     }
 
     /**
+     * Waits for an event
+     */
+    private void StartEventListener(FXMLDocumentController ihmController, PosEmuEngine internalPosEmuEngine) {
+       // Wait for a command
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                do {
+                    try {
+                        // Check if an event is available
+                        PosEnums.PosEvent theEvent = ihmController.IsEventAvailable();
+                        if (theEvent != PosEnums.PosEvent.NO_EVENT)
+                        {
+                            // there is an event
+                            switch(theEvent)
+                            {
+                                case KEY_PRESSED:
+                                    PosEnums.PosKeyCode theKey = ihmController.GetKeyCode();
+                                    internalPosEmuEngine.EventReceived(theEvent, theKey);
+                                    break;
+                                default:
+                                    break;
+                            }
+                        }
+                        Thread.sleep(10);
+                    } catch (InterruptedException ex) {
+                        Logger.getLogger(Pos_emu.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                } while (true);
+            }
+        }).start();         
+   }  
+    
+    /**
      * @param args the command line arguments
      */
     public static void main(String[] args) {
         launch(args);
-    }
+    }    
     
 }
