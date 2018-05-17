@@ -29,6 +29,7 @@ class PosEnums
     
     public enum State
     {
+        STATE_NOT_STARTED,
         STATE_IDLE,
         STATE_MENU_SCREEN,
         STATE_AMOUNT,

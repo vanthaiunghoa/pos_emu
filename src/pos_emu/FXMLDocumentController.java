@@ -36,62 +36,92 @@ public class FXMLDocumentController implements Initializable {
     @FXML
     private void Button1Event(ActionEvent event) {
         OutputLabel.setText("BUTTON 1 PRESSED");
+        eventAvailable = PosEnums.PosEvent.KEY_PRESSED;
+        eventKeyCode = PosEnums.PosKeyCode.NUM_1;
     }
     @FXML
     private void Button2Event(ActionEvent event) {
         OutputLabel.setText("BUTTON 2 PRESSED");
+        eventAvailable = PosEnums.PosEvent.KEY_PRESSED;
+        eventKeyCode = PosEnums.PosKeyCode.NUM_2;
     }
     @FXML
     private void Button3Event(ActionEvent event) {
         OutputLabel.setText("BUTTON 3 PRESSED");
+        eventAvailable = PosEnums.PosEvent.KEY_PRESSED;
+        eventKeyCode = PosEnums.PosKeyCode.NUM_3;
     }
     @FXML
     private void Button4Event(ActionEvent event) {
         OutputLabel.setText("BUTTON 4 PRESSED");
+        eventAvailable = PosEnums.PosEvent.KEY_PRESSED;
+        eventKeyCode = PosEnums.PosKeyCode.NUM_4;
     }
     @FXML
     private void Button5Event(ActionEvent event) {
         OutputLabel.setText("BUTTON 5 PRESSED");
+        eventAvailable = PosEnums.PosEvent.KEY_PRESSED;
+        eventKeyCode = PosEnums.PosKeyCode.NUM_5;
     }
     @FXML
     private void Button6Event(ActionEvent event) {
         OutputLabel.setText("BUTTON 6 PRESSED");
+        eventAvailable = PosEnums.PosEvent.KEY_PRESSED;
+        eventKeyCode = PosEnums.PosKeyCode.NUM_6;
     }
     @FXML
     private void Button7Event(ActionEvent event) {
         OutputLabel.setText("BUTTON 7 PRESSED");
+        eventAvailable = PosEnums.PosEvent.KEY_PRESSED;
+        eventKeyCode = PosEnums.PosKeyCode.NUM_7;
     }
     @FXML
     private void Button8Event(ActionEvent event) {
         OutputLabel.setText("BUTTON 8 PRESSED");
+        eventAvailable = PosEnums.PosEvent.KEY_PRESSED;
+        eventKeyCode = PosEnums.PosKeyCode.NUM_8;
     }
     @FXML
     private void Button9Event(ActionEvent event) {
         OutputLabel.setText("BUTTON 9 PRESSED");
+        eventAvailable = PosEnums.PosEvent.KEY_PRESSED;
+        eventKeyCode = PosEnums.PosKeyCode.NUM_9;
     }
     @FXML
     private void ButtonLEvent(ActionEvent event) {
         OutputLabel.setText("BUTTON L PRESSED");
+        eventAvailable = PosEnums.PosEvent.KEY_PRESSED;
+        eventKeyCode = PosEnums.PosKeyCode.NUM_F;
     }
     @FXML
     private void ButtonPointEvent(ActionEvent event) {
         OutputLabel.setText("BUTTON Point PRESSED");
+        eventAvailable = PosEnums.PosEvent.KEY_PRESSED;
+        eventKeyCode = PosEnums.PosKeyCode.NUM_POINT;
     }
     @FXML
     private void ButtonFEvent(ActionEvent event) {
         OutputLabel.setText("BUTTON F PRESSED");
+        eventAvailable = PosEnums.PosEvent.KEY_PRESSED;
+        eventKeyCode = PosEnums.PosKeyCode.NUM_MENU;
     }
     @FXML
     private void ButtonCancelEvent(ActionEvent event) {
         OutputLabel.setText("BUTTON CANCEL PRESSED");
+        eventAvailable = PosEnums.PosEvent.KEY_PRESSED;
+        eventKeyCode = PosEnums.PosKeyCode.NUM_CANCEL;
     }
     @FXML
     private void ButtonCorrEvent(ActionEvent event) {
         OutputLabel.setText("BUTTON CORR PRESSED");
+        eventAvailable = PosEnums.PosEvent.KEY_PRESSED;
+        eventKeyCode = PosEnums.PosKeyCode.NUM_CORR;
     }
     @FXML
     private void ButtonValidEvent(ActionEvent event) {
         OutputLabel.setText("BUTTON VALID PRESSED");
+        eventAvailable = PosEnums.PosEvent.KEY_PRESSED;
+        eventKeyCode = PosEnums.PosKeyCode.NUM_VAL;
     }    
     @FXML
     private void ButtonSmartCardEvent(ActionEvent event) {
