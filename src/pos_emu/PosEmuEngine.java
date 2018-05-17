@@ -5,8 +5,6 @@
  */
 package pos_emu;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javafx.application.Platform;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
@@ -23,7 +21,12 @@ class PosEmuEngine {
     private final ParamConfigFile internalParamData;
     private PosEnums.State currentState = PosEnums.State.STATE_NOT_STARTED;
     private PosEnums.State nextState;
-
+    private String strAmount;
+    private String strAmountInteger;
+    private String strAmountDecimal;
+    private int pressedNumKey;
+    private int currencyExponent;
+    
     /*
     * Constructor
      */
@@ -69,13 +72,18 @@ class PosEmuEngine {
                 case STATE_AMOUNT:
                     System.out.println("STATE AMOUNT");
                     // 2 lines of 16 characters are displayed
+                    String str = strAmountInteger + "," + strAmountDecimal + " EUR";
                     ClearScreen();
                     DisplayLine("    DEBIT", Color.web("#404040"), 0, 100, new Font(CHAR_SIZE));
-                    DisplayLine("   1,00 EUR", Color.web("#404040"), 0, 150, new Font(CHAR_SIZE));
+                    DisplayLine(str, Color.web("#404040"), 0, 150, new Font(CHAR_SIZE));
                     break;
 
                 case STATE_CARD_WAITING:
                     System.out.println("STATE CARD WAITING");
+                    str = strAmountInteger + "," + strAmountDecimal + " EUR";
+                    ClearScreen();
+                    DisplayLine("        INSERT CARD", Color.web("#404040"), 0, 100, new Font(CHAR_SIZE));
+                    DisplayLine(str, Color.web("#802020"), 0, 170, new Font(CHAR_SIZE));
                     break;
 
                 case TRANSACTION:
@@ -97,19 +105,32 @@ class PosEmuEngine {
         
         switch (currentState) {
             case STATE_IDLE:
-                if (IsNumeric(keyValue) == true)
+                ClearAmount();
+                if (IsNumeric(keyValue) == true) {
+                    AddDigitToAmount(keyValue);
                     StartEngine(PosEnums.State.STATE_AMOUNT);
+                }
                 break;
 
             case STATE_MENU_SCREEN:
-                break;
-
-            case STATE_AMOUNT:
                 if (keyValue == PosEnums.PosKeyCode.NUM_CANCEL)
                     StartEngine(PosEnums.State.STATE_IDLE);
                 break;
 
+            case STATE_AMOUNT:
+                if (keyValue == PosEnums.PosKeyCode.NUM_VAL)
+                    StartEngine(PosEnums.State.STATE_CARD_WAITING);
+                if (keyValue == PosEnums.PosKeyCode.NUM_CANCEL)
+                    StartEngine(PosEnums.State.STATE_IDLE);
+                if (IsNumeric(keyValue) == true) {
+                    AddDigitToAmount(keyValue);
+                    StartEngine(PosEnums.State.STATE_AMOUNT);
+                }
+                break;
+
             case STATE_CARD_WAITING:
+                if (keyValue == PosEnums.PosKeyCode.NUM_CANCEL)
+                    StartEngine(PosEnums.State.STATE_IDLE);
                 break;
 
             case TRANSACTION:
@@ -156,5 +177,84 @@ class PosEmuEngine {
                 || (keyValue == PosEnums.PosKeyCode.NUM_7)
                 || (keyValue == PosEnums.PosKeyCode.NUM_8)
                 || (keyValue == PosEnums.PosKeyCode.NUM_9);
+    }
+    
+    private void ClearAmount() {
+        strAmount = "";
+        strAmountInteger = "            0";
+        strAmountDecimal = "00";
+        pressedNumKey = 0;
+    }
+    
+    private void AddDigitToAmount(PosEnums.PosKeyCode keyValue) {
+        char val;
+        
+        switch(keyValue)
+        {
+            case NUM_0:
+                val = '0';
+                break;
+            case NUM_1:
+                val = '1';
+                break;
+            case NUM_2:
+                val = '2';
+                break;
+            case NUM_3:
+                val = '3';
+                break;
+            case NUM_4:
+                val = '4';
+                break;
+            case NUM_5:
+                val = '5';
+                break;
+            case NUM_6:
+                val = '6';
+                break;
+            case NUM_7:
+                val = '7';
+                break;
+            case NUM_8:
+                val = '8';
+                break;
+            case NUM_9:
+                val = '9';
+                break;
+            default:
+                val = '0';
+                break;
+        }
+        
+        StringBuilder bAmountDecimal = new StringBuilder(strAmountDecimal);
+        StringBuilder bAmountInteger = new StringBuilder(strAmountInteger);
+        
+        if (pressedNumKey < 15)
+        {
+            strAmount = strAmount + val;
+            StringBuilder bAmount = new StringBuilder(strAmount);
+            char v = '0';
+            if (pressedNumKey == 0) {
+                bAmountDecimal.setCharAt(1,bAmount.charAt(pressedNumKey));
+            }
+            else if (pressedNumKey == 1) {
+                bAmountDecimal.setCharAt(1,bAmount.charAt(pressedNumKey));
+                bAmountDecimal.setCharAt(0,bAmount.charAt(pressedNumKey-1));
+            } else if (pressedNumKey == 2) {
+                bAmountDecimal.setCharAt(1, bAmount.charAt(pressedNumKey));
+                bAmountDecimal.setCharAt(0, bAmount.charAt(pressedNumKey - 1));
+                bAmountInteger.setCharAt(12, bAmount.charAt(pressedNumKey - 2));
+            } else {
+                bAmountDecimal.setCharAt(1, bAmount.charAt(pressedNumKey));
+                bAmountDecimal.setCharAt(0, bAmount.charAt(pressedNumKey - 1));
+                for (int i = 0; i < (pressedNumKey - 1); i++) {
+                    bAmountInteger.setCharAt(12-i, bAmount.charAt(pressedNumKey - 2 - i));                    
+                }
+            }
+            pressedNumKey++;
+        }
+        
+        strAmountDecimal = bAmountDecimal.toString();          
+        strAmountInteger = bAmountInteger.toString();          
     }
 }
