@@ -20,7 +20,6 @@ import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import javafx.application.Platform;
-import javafx.event.EventHandler;
 import javafx.stage.WindowEvent;
 
 /**
@@ -35,6 +34,8 @@ public class Pos_emu extends Application {
     // FXML Document and controller
     FXMLDocumentController ihmController;
     private CommandInterpreter internalCommandInterpreter;
+    private PosEmuEngine internalPosEmuEngine;
+    
     // Parameters from configuration file
     private ParamConfigFile config_param_data;
     
@@ -49,8 +50,10 @@ public class Pos_emu extends Application {
                
         //Now we have access to getController() through the instance... don't forget the type cast
         ihmController = (FXMLDocumentController)loader.getController();
+        
+        // Create instance of CommandInterpreter
         internalCommandInterpreter = new CommandInterpreter(ihmController);
-
+        
         // Create the scene
         Scene scene = new Scene(root);
         // Window without Minimize, Maximize buttons
@@ -65,6 +68,9 @@ public class Pos_emu extends Application {
         // Read Configuration file 
         config_param_data = ReadJsonConfigFile();
 
+        // Create instante of Engine
+        internalPosEmuEngine = new PosEmuEngine(ihmController, config_param_data);
+
         // Set operations when window is closed
         stage.setOnCloseRequest((WindowEvent we) -> {
             System.out.println("Stage is closing: " + we);
@@ -75,6 +81,9 @@ public class Pos_emu extends Application {
         // Start the terminal boot
         StartPOSBoot();
         
+        // Start the IDLE Screen
+        internalPosEmuEngine.StartEngine(PosEmuEngine.State.STATE_IDLE);
+        
         // Add the scene to the stage and launch the stage
         stage.setScene(scene);
         stage.setTitle("INGENICO POS EMULATOR");
@@ -84,7 +93,8 @@ public class Pos_emu extends Application {
     /**
      * Read the configuration file : param.json
      * 
-     * @return 
+     * @return ParamConfigFile parameters coming from the file
+     * 
      * @throws java.io.FileNotFoundException
      */
     private ParamConfigFile ReadJsonConfigFile() throws FileNotFoundException

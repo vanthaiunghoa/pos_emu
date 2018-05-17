@@ -11,7 +11,41 @@ class ParamConfigFile
     private String app_name;
     private String protocol_version;
     private String ip_port;
-
+    private String idle_type;
+    private String idle_logo;
+    private String idle_msg1;
+    private String idle_msg2;
+    
+    public String GetIdleMsg1()
+    {
+        if (idle_msg1 == null)
+            idle_msg1 = "";
+        
+        return idle_msg1;
+    }
+    public String GetIdleMsg2()
+    {
+        if (idle_msg2 == null)
+            idle_msg2 = "";
+        
+        return idle_msg2;
+    }
+    public String GetLogo()
+    {
+        if (idle_logo == null)
+            idle_logo = "";
+        
+        return idle_logo;
+    }
+    public String GetIdleType()
+    {
+        // idle_type = 0 => TEXT for IDLE SCREEN
+        // idle_type = 1 => LOGO for IDLE SCREEN
+        if (idle_type == null)
+            idle_type = "0";
+        
+        return idle_type;
+    }
     public String GetPosPort()
     {
         // Default port value

@@ -19,15 +19,19 @@ import javafx.scene.layout.Pane;
  * @author balacahan
  */
 public class FXMLDocumentController implements Initializable {
-    
+   
     @FXML
     public Label OutputLabel;
     public Label PromptText;
-    public Pane PosScreen;
+    public Pane PosScreen;    
+    private PosEmuEngine.PosEvent eventAvailable = PosEmuEngine.PosEvent.NO_EVENT;
+    private PosEmuEngine.PosKeyCode eventKeyCode = PosEmuEngine.PosKeyCode.NO_KEY;
     
     @FXML
     private void Button0Event(ActionEvent event) {
         OutputLabel.setText("BUTTON 0 PRESSED");
+        eventAvailable = PosEmuEngine.PosEvent.KEY_PRESSED;
+        eventKeyCode = PosEmuEngine.PosKeyCode.NUM_0;
     }
     @FXML
     private void Button1Event(ActionEvent event) {
@@ -99,7 +103,7 @@ public class FXMLDocumentController implements Initializable {
     }    
     @FXML
     private void ButtonMagstripeEvent(ActionEvent event) {
-        OutputLabel.setText("MAGSTRIPE SWIPPED");
+        OutputLabel.setText("MAGSTRIPE SWIPPED");        
     }    
     @FXML
     private void ButtonQuitEvent(ActionEvent event) {
@@ -107,6 +111,20 @@ public class FXMLDocumentController implements Initializable {
         System.exit(0);
     }    
 
+    public PosEmuEngine.PosEvent IsEventAvailable()
+    {
+        PosEmuEngine.PosEvent retEvent = eventAvailable;
+        eventAvailable = PosEmuEngine.PosEvent.NO_EVENT;
+        return retEvent;
+    }
+
+    public PosEmuEngine.PosKeyCode GetKeyCode()
+    {        
+        PosEmuEngine.PosKeyCode retKeyCode = eventKeyCode;
+        eventKeyCode = PosEmuEngine.PosKeyCode.NO_KEY;
+        return retKeyCode;
+    }
+        
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         // TODO
