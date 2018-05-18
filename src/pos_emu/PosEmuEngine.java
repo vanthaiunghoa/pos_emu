@@ -16,6 +16,8 @@ import javafx.scene.text.Font;
 class PosEmuEngine {
 
     private final int CHAR_SIZE = 18;
+    private final String THE_FONT = "Arial monospaced for SAP";
+    private final int AMOUNT_MAX_DIGIT = 14;
 
     private final FXMLDocumentController internalIhmController;
     private final ParamConfigFile internalParamData;
@@ -74,23 +76,23 @@ class PosEmuEngine {
                     // 2 lines of 16 characters are displayed
                     String str = strAmountInteger + "," + strAmountDecimal + " EUR";
                     ClearScreen();
-                    DisplayLine("    DEBIT", Color.web("#404040"), 0, 100, new Font(CHAR_SIZE));
-                    DisplayLine(str, Color.web("#404040"), 0, 150, new Font(CHAR_SIZE));
+                    DisplayLine("       DEBIT", Color.web("#404040"), 0, 100, new Font(THE_FONT, CHAR_SIZE));
+                    DisplayLine(str, Color.web("#404040"), 0, 150, new Font(THE_FONT, CHAR_SIZE));
                     break;
 
                 case STATE_CARD_WAITING:
                     System.out.println("STATE CARD WAITING");
                     str = strAmountInteger + "," + strAmountDecimal + " EUR";
                     ClearScreen();
-                    DisplayLine("        INSERT CARD", Color.web("#404040"), 0, 100, new Font(CHAR_SIZE));
-                    DisplayLine(str, Color.web("#802020"), 0, 170, new Font(CHAR_SIZE));
+                    DisplayLine("        INSERT CARD", Color.web("#404040"), 0, 100, new Font(THE_FONT, CHAR_SIZE));
+                    DisplayLine(str, Color.web("#802020"), 0, 170, new Font(THE_FONT, CHAR_SIZE));
                     break;
 
                 case TRANSACTION:
                     System.out.println("STATE TRANSACTION");
                     ClearScreen();
-                    DisplayLine("TRANSACTION", Color.web("#404040"), 0, 100, new Font(CHAR_SIZE));
-                    DisplayLine(" EN COURS", Color.web("#404040"), 0, 150, new Font(CHAR_SIZE));
+                    DisplayLine("TRANSACTION", Color.web("#404040"), 0, 100, new Font(THE_FONT, CHAR_SIZE));
+                    DisplayLine(" EN COURS", Color.web("#404040"), 0, 150, new Font(THE_FONT, CHAR_SIZE));
                     break;
 
                 default:
@@ -108,8 +110,8 @@ class PosEmuEngine {
                 ClearAmount();
                 if (IsNumeric(keyValue) == true) {
                     AddDigitToAmount(keyValue);
-                    StartEngine(PosEnums.State.STATE_AMOUNT);
                 }
+                StartEngine(PosEnums.State.STATE_AMOUNT);
                 break;
 
             case STATE_MENU_SCREEN:
@@ -118,6 +120,10 @@ class PosEmuEngine {
                 break;
 
             case STATE_AMOUNT:
+                if (keyValue == PosEnums.PosKeyCode.NUM_CORR) {
+                    RemoveDigitFromAmount(keyValue);
+                    StartEngine(PosEnums.State.STATE_AMOUNT);
+                }
                 if (keyValue == PosEnums.PosKeyCode.NUM_VAL)
                     StartEngine(PosEnums.State.STATE_CARD_WAITING);
                 if (keyValue == PosEnums.PosKeyCode.NUM_CANCEL)
@@ -181,11 +187,20 @@ class PosEmuEngine {
     
     private void ClearAmount() {
         strAmount = "";
-        strAmountInteger = "            0";
+        strAmountInteger = "           0";
         strAmountDecimal = "00";
         pressedNumKey = 0;
     }
     
+    private void RemoveDigitFromAmount(PosEnums.PosKeyCode keyValue) {
+        if (pressedNumKey > 0)
+        {
+            pressedNumKey -= 1;
+            strAmount = shift(strAmount);
+            UpdateAmountDisplay();            
+        }
+    }
+            
     private void AddDigitToAmount(PosEnums.PosKeyCode keyValue) {
         char val;
         
@@ -226,35 +241,35 @@ class PosEmuEngine {
                 break;
         }
         
+        strAmount = strAmount + val;
+        UpdateAmountDisplay();
+        pressedNumKey++;
+    }
+    
+    private void UpdateAmountDisplay() {
+        // Update display of amount
         StringBuilder bAmountDecimal = new StringBuilder(strAmountDecimal);
         StringBuilder bAmountInteger = new StringBuilder(strAmountInteger);
-        
-        if (pressedNumKey < 15)
-        {
-            strAmount = strAmount + val;
-            StringBuilder bAmount = new StringBuilder(strAmount);
-            char v = '0';
-            if (pressedNumKey == 0) {
-                bAmountDecimal.setCharAt(1,bAmount.charAt(pressedNumKey));
+
+        if (pressedNumKey < AMOUNT_MAX_DIGIT) {
+            bAmountDecimal.setCharAt(1, strAmount.charAt(pressedNumKey));
+            if (pressedNumKey > 0) {
+                bAmountDecimal.setCharAt(0, strAmount.charAt(pressedNumKey - 1));
             }
-            else if (pressedNumKey == 1) {
-                bAmountDecimal.setCharAt(1,bAmount.charAt(pressedNumKey));
-                bAmountDecimal.setCharAt(0,bAmount.charAt(pressedNumKey-1));
-            } else if (pressedNumKey == 2) {
-                bAmountDecimal.setCharAt(1, bAmount.charAt(pressedNumKey));
-                bAmountDecimal.setCharAt(0, bAmount.charAt(pressedNumKey - 1));
-                bAmountInteger.setCharAt(12, bAmount.charAt(pressedNumKey - 2));
-            } else {
-                bAmountDecimal.setCharAt(1, bAmount.charAt(pressedNumKey));
-                bAmountDecimal.setCharAt(0, bAmount.charAt(pressedNumKey - 1));
+            if (pressedNumKey > 1) {
                 for (int i = 0; i < (pressedNumKey - 1); i++) {
-                    bAmountInteger.setCharAt(12-i, bAmount.charAt(pressedNumKey - 2 - i));                    
+                    bAmountInteger.setCharAt((AMOUNT_MAX_DIGIT-3) - i, strAmount.charAt(pressedNumKey - 2 - i));
                 }
             }
-            pressedNumKey++;
         }
-        
-        strAmountDecimal = bAmountDecimal.toString();          
-        strAmountInteger = bAmountInteger.toString();          
+
+        strAmountDecimal = bAmountDecimal.toString();
+        strAmountInteger = bAmountInteger.toString();
     }
+    
+    private static String shift(String s) {
+        String str;
+        str = s.substring(0,s.length()-1);
+        return str;
+    }    
 }
