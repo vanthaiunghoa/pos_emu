@@ -70,12 +70,6 @@
         </ImageView>
       </graphic>
     </Button>
-    <Pane fx:id="PosScreen" layoutX="57.0" layoutY="152.0" prefHeight="300.0" prefWidth="210.0" style="-fx-background-color: black">
-         <children>
-            <Label fx:id="PromptText" layoutY="142.0" prefHeight="17.0" prefWidth="210.0" text="Label" textAlignment="CENTER">
-               <font>
-                  <Font size="16.0" />
-               </font></Label>
-         </children></Pane>
+    <Pane fx:id="PosScreen" layoutX="57.0" layoutY="150.0" prefHeight="304.0" prefWidth="210.0" style="-fx-background-color: black" />
   </children>
 </AnchorPane>

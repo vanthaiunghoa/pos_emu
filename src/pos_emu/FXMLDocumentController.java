@@ -22,7 +22,6 @@ public class FXMLDocumentController implements Initializable {
    
     @FXML
     public Label OutputLabel;
-    public Label PromptText;
     public Pane PosScreen;    
     private PosEnums.PosEvent eventAvailable = PosEnums.PosEvent.NO_EVENT;
     private PosEnums.PosKeyCode eventKeyCode = PosEnums.PosKeyCode.NO_KEY;

@@ -129,9 +129,6 @@ public class Pos_emu extends Application {
     {
         // Set font to white
         ihmController.PosScreen.setStyle("-fx-background-color:white");
-        // Display welcome message
-        ihmController.PromptText.setAlignment(Pos.CENTER);
-        ihmController.PromptText.setText("BIENVENUE");      
         
         // Start TCP/IP listener
         int port = Integer.parseInt(config_param_data.GetPosPort());

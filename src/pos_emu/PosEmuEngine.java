@@ -17,7 +17,10 @@ class PosEmuEngine {
     private final int FONT_CHAR_SIZE = 18;
     private final int MAX_SCREEN_CHAR = 19;
     private final int AMOUNT_MAX_DIGIT = MAX_SCREEN_CHAR - 5;
-
+    private final String BACKGROUND_IMAGE = "/pos_emu/resource/stone-background.png";
+    private final Paint WHITE_COLOR = Color.web("#DDDDDD");
+    private final Paint RED_COLOR = Color.web("#FFCCCC");
+    
     private final FXMLDocumentController internalIhmController;
     private final ParamConfigFile internalParamData;
     private PosEnums.State currentState = PosEnums.State.STATE_NOT_STARTED;
@@ -27,7 +30,7 @@ class PosEmuEngine {
     private String strAmountDecimal;
     private int pressedNumKey;
     private int currencyExponent;
-    
+
     /*
     * Constructor
      */
@@ -46,23 +49,18 @@ class PosEmuEngine {
 
         do {
             currentState = nextState;
-
+            
             switch (currentState) {
                 case STATE_IDLE:
                     System.out.println("STATE IDLE");
+                    ClearScreen();
                     if (Integer.parseInt(internalParamData.GetIdleType()) == 0) {
                         // 2 lines of 16 characters are displayed
-                        ClearScreen();
-                        DisplayLine(CenterMessage(internalParamData.GetIdleMsg1()), Color.web("#404040"), 0, 120, FONT_CHAR_SIZE);
-                        DisplayLine(CenterMessage(internalParamData.GetIdleMsg2()), Color.web("#404040"), 0, 144, FONT_CHAR_SIZE);
+                        DisplayLine(CenterMessage(internalParamData.GetIdleMsg1()), WHITE_COLOR, 0, 120, FONT_CHAR_SIZE);
+                        DisplayLine(CenterMessage(internalParamData.GetIdleMsg2()), WHITE_COLOR, 0, 144, FONT_CHAR_SIZE);
                     } else {
                         // A logo is displayed
-                        ImageView imageView = new ImageView(new Image(internalParamData.GetLogo()));
-                        imageView.toFront();
-                        Platform.runLater(() -> {
-                            internalIhmController.PosScreen.getChildren().clear();
-                            internalIhmController.PosScreen.getChildren().add((imageView));
-                        });
+                        DisplayImage(internalParamData.GetLogo());
                     }
                     break;
 
@@ -73,25 +71,25 @@ class PosEmuEngine {
                 case STATE_AMOUNT:
                     System.out.println("STATE AMOUNT");
                     // 2 lines of 16 characters are displayed
-                    String str = strAmountInteger + "," + strAmountDecimal + " EUR";
                     ClearScreen();
-                    DisplayLine(CenterMessage("DEBIT"), Color.web("#404040"), 0, 100, FONT_CHAR_SIZE);
-                    DisplayLine(str, Color.web("#404040"), 0, 150, FONT_CHAR_SIZE);
+                    String str = strAmountInteger + "," + strAmountDecimal + " EUR";
+                    DisplayLine(CenterMessage("DEBIT"), WHITE_COLOR, 0, 100, FONT_CHAR_SIZE);
+                    DisplayLine(str, WHITE_COLOR, 0, 150, FONT_CHAR_SIZE);
                     break;
 
                 case STATE_CARD_WAITING:
                     System.out.println("STATE CARD WAITING");
                     str = strAmountInteger + "," + strAmountDecimal + " EUR";
                     ClearScreen();
-                    DisplayLine(CenterMessage("INSERT CARD"), Color.web("#404040"), 0, 100, FONT_CHAR_SIZE);
-                    DisplayLine(CenterMessage(str), Color.web("#802020"), 0, 170, FONT_CHAR_SIZE);
+                    DisplayLine(CenterMessage("INSERT CARD"), WHITE_COLOR, 0, 100, FONT_CHAR_SIZE);
+                    DisplayLine(CenterMessage(str), RED_COLOR, 0, 170, FONT_CHAR_SIZE);
                     break;
 
                 case TRANSACTION:
                     System.out.println("STATE TRANSACTION");
                     ClearScreen();
-                    DisplayLine(CenterMessage("TRANSACTION"), Color.web("#404040"), 0, 100, FONT_CHAR_SIZE);
-                    DisplayLine(CenterMessage("EN COURS"), Color.web("#404040"), 0, 150, FONT_CHAR_SIZE);
+                    DisplayLine(CenterMessage("TRANSACTION"), WHITE_COLOR, 0, 100, FONT_CHAR_SIZE);
+                    DisplayLine(CenterMessage("EN COURS"), WHITE_COLOR, 0, 150, FONT_CHAR_SIZE);
                     break;
 
                 default:
@@ -103,7 +101,7 @@ class PosEmuEngine {
     }
 
     public void EventReceived(PosEnums.PosEvent receivedEvent, PosEnums.PosKeyCode keyValue) {
-        
+
         switch (currentState) {
             case STATE_IDLE:
                 if (IsNumeric(keyValue) == true) {
@@ -114,19 +112,22 @@ class PosEmuEngine {
                 break;
 
             case STATE_MENU_SCREEN:
-                if (keyValue == PosEnums.PosKeyCode.NUM_CANCEL)
+                if (keyValue == PosEnums.PosKeyCode.NUM_CANCEL) {
                     StartEngine(PosEnums.State.STATE_IDLE);
+                }
                 break;
 
             case STATE_AMOUNT:
                 if (keyValue == PosEnums.PosKeyCode.NUM_CORR) {
-                    RemoveDigitFromAmount(keyValue);
+                    RemoveDigitFromAmount();
                     StartEngine(PosEnums.State.STATE_AMOUNT);
                 }
-                if (keyValue == PosEnums.PosKeyCode.NUM_VAL)
+                if (keyValue == PosEnums.PosKeyCode.NUM_VAL) {
                     StartEngine(PosEnums.State.STATE_CARD_WAITING);
-                if (keyValue == PosEnums.PosKeyCode.NUM_CANCEL)
+                }
+                if (keyValue == PosEnums.PosKeyCode.NUM_CANCEL) {
                     StartEngine(PosEnums.State.STATE_IDLE);
+                }
                 if (IsNumeric(keyValue) == true) {
                     AddDigitToAmount(keyValue);
                     StartEngine(PosEnums.State.STATE_AMOUNT);
@@ -134,8 +135,9 @@ class PosEmuEngine {
                 break;
 
             case STATE_CARD_WAITING:
-                if (keyValue == PosEnums.PosKeyCode.NUM_CANCEL)
+                if (keyValue == PosEnums.PosKeyCode.NUM_CANCEL) {
                     StartEngine(PosEnums.State.STATE_IDLE);
+                }
                 break;
 
             case TRANSACTION:
@@ -149,15 +151,26 @@ class PosEmuEngine {
     private String CenterMessage(String msg) {
         int spaceNb = (MAX_SCREEN_CHAR - msg.length()) / 2;
         String preSpaces = "";
-        for (int i=0; i<spaceNb; i++)
+        for (int i = 0; i < spaceNb; i++) {
             preSpaces += ' ';
-        
+        }
+
         return (preSpaces + msg);
     }
 
     private void ClearScreen() {
         Platform.runLater(() -> {
             internalIhmController.PosScreen.getChildren().clear();
+        });
+        DisplayImage(BACKGROUND_IMAGE);
+    }
+
+    private void DisplayImage(String imageToDisplay) {
+
+        ImageView imageView = new ImageView(new Image(imageToDisplay));
+        imageView.toFront();
+        Platform.runLater(() -> {
+            internalIhmController.PosScreen.getChildren().add((imageView));
         });
     }
 
@@ -174,7 +187,7 @@ class PosEmuEngine {
             internalIhmController.PosScreen.getChildren().add((posScreenLabel));
         });
     }
-    
+
     private boolean IsNumeric(PosEnums.PosKeyCode keyValue) {
         return (keyValue == PosEnums.PosKeyCode.NUM_0)
                 || (keyValue == PosEnums.PosKeyCode.NUM_1)
@@ -187,28 +200,26 @@ class PosEmuEngine {
                 || (keyValue == PosEnums.PosKeyCode.NUM_8)
                 || (keyValue == PosEnums.PosKeyCode.NUM_9);
     }
-    
+
     private void ClearAmount() {
         strAmount = "";
         strAmountInteger = "           0";
         strAmountDecimal = "00";
         pressedNumKey = 0;
     }
-    
-    private void RemoveDigitFromAmount(PosEnums.PosKeyCode keyValue) {
-        if (pressedNumKey > 0)
-        {
+
+    private void RemoveDigitFromAmount() {
+        if (pressedNumKey > 0) {
             pressedNumKey -= 1;
             strAmount = shift(strAmount);
             UpdateAmountDisplay(1);
         }
     }
-            
+
     private void AddDigitToAmount(PosEnums.PosKeyCode keyValue) {
         char val;
-        
-        switch(keyValue)
-        {
+
+        switch (keyValue) {
             case NUM_0:
                 val = '0';
                 break;
@@ -243,19 +254,19 @@ class PosEmuEngine {
                 val = '0';
                 break;
         }
-        
+
         if (pressedNumKey < AMOUNT_MAX_DIGIT) {
             strAmount = strAmount + val;
             pressedNumKey++;
             UpdateAmountDisplay(0);
         }
     }
-    
+
     private void UpdateAmountDisplay(int direction) {
         // Update display of amount
         StringBuilder bAmountDecimal = new StringBuilder(strAmountDecimal);
         StringBuilder bAmountInteger = new StringBuilder(strAmountInteger);
-       
+
         if ((pressedNumKey > 0) && (pressedNumKey <= AMOUNT_MAX_DIGIT)) {
             bAmountDecimal.setCharAt(1, strAmount.charAt(pressedNumKey - 1));
             if (pressedNumKey > 1) {
@@ -263,30 +274,30 @@ class PosEmuEngine {
             }
             if (pressedNumKey > 2) {
                 for (int i = 0; i < (pressedNumKey - 2); i++) {
-                    bAmountInteger.setCharAt((AMOUNT_MAX_DIGIT-3) - i, strAmount.charAt(pressedNumKey - 3 - i));
+                    bAmountInteger.setCharAt((AMOUNT_MAX_DIGIT - 3) - i, strAmount.charAt(pressedNumKey - 3 - i));
                 }
             }
         }
 
         if (direction == 1) {
             if (pressedNumKey > 2) {
-                bAmountInteger.setCharAt((AMOUNT_MAX_DIGIT-3) - (pressedNumKey-2), ' ');
+                bAmountInteger.setCharAt((AMOUNT_MAX_DIGIT - 3) - (pressedNumKey - 2), ' ');
             } else if (pressedNumKey == 2) {
-                bAmountInteger.setCharAt((AMOUNT_MAX_DIGIT-3) - (pressedNumKey-2), '0');
+                bAmountInteger.setCharAt((AMOUNT_MAX_DIGIT - 3) - (pressedNumKey - 2), '0');
             } else if (pressedNumKey == 1) {
                 bAmountDecimal.setCharAt(0, '0');
             } else {
                 bAmountDecimal.setCharAt(1, '0');
             }
         }
-        
+
         strAmountDecimal = bAmountDecimal.toString();
         strAmountInteger = bAmountInteger.toString();
     }
-    
+
     private static String shift(String s) {
         String str;
-        str = s.substring(0,s.length()-1);
+        str = s.substring(0, s.length() - 1);
         return str;
-    }    
+    }
 }
