@@ -3,7 +3,7 @@
     "protocol_version": "0.1.0",
     "ip_port": 8999,
     "idle_type": 0,
-    "idle_msg1": "       Hello",
-    "idle_msg2": "       World!", 
+    "idle_msg1": "Hello",
+    "idle_msg2": "World!", 
     "idle_logo": "/pos_emu/resource/logo.png"
 }

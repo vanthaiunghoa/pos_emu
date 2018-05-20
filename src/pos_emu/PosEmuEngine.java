@@ -11,12 +11,12 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
-import javafx.scene.text.Font;
 
 class PosEmuEngine {
 
-    private final int CHAR_SIZE = 18;
-    private final int AMOUNT_MAX_DIGIT = 14;
+    private final int FONT_CHAR_SIZE = 18;
+    private final int MAX_SCREEN_CHAR = 19;
+    private final int AMOUNT_MAX_DIGIT = MAX_SCREEN_CHAR - 5;
 
     private final FXMLDocumentController internalIhmController;
     private final ParamConfigFile internalParamData;
@@ -53,8 +53,8 @@ class PosEmuEngine {
                     if (Integer.parseInt(internalParamData.GetIdleType()) == 0) {
                         // 2 lines of 16 characters are displayed
                         ClearScreen();
-                        DisplayLine(internalParamData.GetIdleMsg1(), Color.web("#404040"), 0, 120, CHAR_SIZE);
-                        DisplayLine(internalParamData.GetIdleMsg2(), Color.web("#404040"), 0, 144, CHAR_SIZE);
+                        DisplayLine(CenterMessage(internalParamData.GetIdleMsg1()), Color.web("#404040"), 0, 120, FONT_CHAR_SIZE);
+                        DisplayLine(CenterMessage(internalParamData.GetIdleMsg2()), Color.web("#404040"), 0, 144, FONT_CHAR_SIZE);
                     } else {
                         // A logo is displayed
                         ImageView imageView = new ImageView(new Image(internalParamData.GetLogo()));
@@ -75,23 +75,23 @@ class PosEmuEngine {
                     // 2 lines of 16 characters are displayed
                     String str = strAmountInteger + "," + strAmountDecimal + " EUR";
                     ClearScreen();
-                    DisplayLine("       DEBIT", Color.web("#404040"), 0, 100, CHAR_SIZE);
-                    DisplayLine(str, Color.web("#404040"), 0, 150, CHAR_SIZE);
+                    DisplayLine(CenterMessage("DEBIT"), Color.web("#404040"), 0, 100, FONT_CHAR_SIZE);
+                    DisplayLine(str, Color.web("#404040"), 0, 150, FONT_CHAR_SIZE);
                     break;
 
                 case STATE_CARD_WAITING:
                     System.out.println("STATE CARD WAITING");
                     str = strAmountInteger + "," + strAmountDecimal + " EUR";
                     ClearScreen();
-                    DisplayLine("        INSERT CARD", Color.web("#404040"), 0, 100, CHAR_SIZE);
-                    DisplayLine(str, Color.web("#802020"), 0, 170, CHAR_SIZE);
+                    DisplayLine(CenterMessage("INSERT CARD"), Color.web("#404040"), 0, 100, FONT_CHAR_SIZE);
+                    DisplayLine(CenterMessage(str), Color.web("#802020"), 0, 170, FONT_CHAR_SIZE);
                     break;
 
                 case TRANSACTION:
                     System.out.println("STATE TRANSACTION");
                     ClearScreen();
-                    DisplayLine("TRANSACTION", Color.web("#404040"), 0, 100, CHAR_SIZE);
-                    DisplayLine(" EN COURS", Color.web("#404040"), 0, 150, CHAR_SIZE);
+                    DisplayLine(CenterMessage("TRANSACTION"), Color.web("#404040"), 0, 100, FONT_CHAR_SIZE);
+                    DisplayLine(CenterMessage("EN COURS"), Color.web("#404040"), 0, 150, FONT_CHAR_SIZE);
                     break;
 
                 default:
@@ -146,9 +146,13 @@ class PosEmuEngine {
         }
     }
 
-    private int CenterMessage(String msg) {
-        int msgLen = msg.length();
-        return (210 - (CHAR_SIZE / 2) * msgLen) / 2;
+    private String CenterMessage(String msg) {
+        int spaceNb = (MAX_SCREEN_CHAR - msg.length()) / 2;
+        String preSpaces = "";
+        for (int i=0; i<spaceNb; i++)
+            preSpaces += ' ';
+        
+        return (preSpaces + msg);
     }
 
     private void ClearScreen() {
