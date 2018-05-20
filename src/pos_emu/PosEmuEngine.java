@@ -16,7 +16,6 @@ import javafx.scene.text.Font;
 class PosEmuEngine {
 
     private final int CHAR_SIZE = 18;
-    private final String THE_FONT = "Arial monospaced for SAP";
     private final int AMOUNT_MAX_DIGIT = 14;
 
     private final FXMLDocumentController internalIhmController;
@@ -54,8 +53,8 @@ class PosEmuEngine {
                     if (Integer.parseInt(internalParamData.GetIdleType()) == 0) {
                         // 2 lines of 16 characters are displayed
                         ClearScreen();
-                        DisplayLine(internalParamData.GetIdleMsg1(), Color.web("#404040"), 0, 120, new Font(CHAR_SIZE));
-                        DisplayLine(internalParamData.GetIdleMsg2(), Color.web("#404040"), 0, 144, new Font(CHAR_SIZE));
+                        DisplayLine(internalParamData.GetIdleMsg1(), Color.web("#404040"), 0, 120, CHAR_SIZE);
+                        DisplayLine(internalParamData.GetIdleMsg2(), Color.web("#404040"), 0, 144, CHAR_SIZE);
                     } else {
                         // A logo is displayed
                         ImageView imageView = new ImageView(new Image(internalParamData.GetLogo()));
@@ -76,23 +75,23 @@ class PosEmuEngine {
                     // 2 lines of 16 characters are displayed
                     String str = strAmountInteger + "," + strAmountDecimal + " EUR";
                     ClearScreen();
-                    DisplayLine("       DEBIT", Color.web("#404040"), 0, 100, new Font(THE_FONT, CHAR_SIZE));
-                    DisplayLine(str, Color.web("#404040"), 0, 150, new Font(THE_FONT, CHAR_SIZE));
+                    DisplayLine("       DEBIT", Color.web("#404040"), 0, 100, CHAR_SIZE);
+                    DisplayLine(str, Color.web("#404040"), 0, 150, CHAR_SIZE);
                     break;
 
                 case STATE_CARD_WAITING:
                     System.out.println("STATE CARD WAITING");
                     str = strAmountInteger + "," + strAmountDecimal + " EUR";
                     ClearScreen();
-                    DisplayLine("        INSERT CARD", Color.web("#404040"), 0, 100, new Font(THE_FONT, CHAR_SIZE));
-                    DisplayLine(str, Color.web("#802020"), 0, 170, new Font(THE_FONT, CHAR_SIZE));
+                    DisplayLine("        INSERT CARD", Color.web("#404040"), 0, 100, CHAR_SIZE);
+                    DisplayLine(str, Color.web("#802020"), 0, 170, CHAR_SIZE);
                     break;
 
                 case TRANSACTION:
                     System.out.println("STATE TRANSACTION");
                     ClearScreen();
-                    DisplayLine("TRANSACTION", Color.web("#404040"), 0, 100, new Font(THE_FONT, CHAR_SIZE));
-                    DisplayLine(" EN COURS", Color.web("#404040"), 0, 150, new Font(THE_FONT, CHAR_SIZE));
+                    DisplayLine("TRANSACTION", Color.web("#404040"), 0, 100, CHAR_SIZE);
+                    DisplayLine(" EN COURS", Color.web("#404040"), 0, 150, CHAR_SIZE);
                     break;
 
                 default:
@@ -107,11 +106,11 @@ class PosEmuEngine {
         
         switch (currentState) {
             case STATE_IDLE:
-                ClearAmount();
                 if (IsNumeric(keyValue) == true) {
+                    ClearAmount();
                     AddDigitToAmount(keyValue);
+                    StartEngine(PosEnums.State.STATE_AMOUNT);
                 }
-                StartEngine(PosEnums.State.STATE_AMOUNT);
                 break;
 
             case STATE_MENU_SCREEN:
@@ -158,11 +157,11 @@ class PosEmuEngine {
         });
     }
 
-    private void DisplayLine(String msg, Paint color, int posX, int posY, Font theFont) {
+    private void DisplayLine(String msg, Paint color, int posX, int posY, int size) {
         // Set label values
         Label posScreenLabel = new Label(msg);
         posScreenLabel.setTextFill(color);
-        posScreenLabel.setFont(theFont);
+        posScreenLabel.setStyle("-fx-font-family: Monospace; -fx-font-size: " + size + "; -fx-font-weight: bold;");
         posScreenLabel.setLayoutX(posX);
         posScreenLabel.setLayoutY(posY);
 
@@ -197,7 +196,7 @@ class PosEmuEngine {
         {
             pressedNumKey -= 1;
             strAmount = shift(strAmount);
-            UpdateAmountDisplay();            
+            UpdateAmountDisplay(1);
         }
     }
             
@@ -241,28 +240,42 @@ class PosEmuEngine {
                 break;
         }
         
-        strAmount = strAmount + val;
-        UpdateAmountDisplay();
-        pressedNumKey++;
+        if (pressedNumKey < AMOUNT_MAX_DIGIT) {
+            strAmount = strAmount + val;
+            pressedNumKey++;
+            UpdateAmountDisplay(0);
+        }
     }
     
-    private void UpdateAmountDisplay() {
+    private void UpdateAmountDisplay(int direction) {
         // Update display of amount
         StringBuilder bAmountDecimal = new StringBuilder(strAmountDecimal);
         StringBuilder bAmountInteger = new StringBuilder(strAmountInteger);
-
-        if (pressedNumKey < AMOUNT_MAX_DIGIT) {
-            bAmountDecimal.setCharAt(1, strAmount.charAt(pressedNumKey));
-            if (pressedNumKey > 0) {
-                bAmountDecimal.setCharAt(0, strAmount.charAt(pressedNumKey - 1));
-            }
+       
+        if ((pressedNumKey > 0) && (pressedNumKey <= AMOUNT_MAX_DIGIT)) {
+            bAmountDecimal.setCharAt(1, strAmount.charAt(pressedNumKey - 1));
             if (pressedNumKey > 1) {
-                for (int i = 0; i < (pressedNumKey - 1); i++) {
-                    bAmountInteger.setCharAt((AMOUNT_MAX_DIGIT-3) - i, strAmount.charAt(pressedNumKey - 2 - i));
+                bAmountDecimal.setCharAt(0, strAmount.charAt(pressedNumKey - 2));
+            }
+            if (pressedNumKey > 2) {
+                for (int i = 0; i < (pressedNumKey - 2); i++) {
+                    bAmountInteger.setCharAt((AMOUNT_MAX_DIGIT-3) - i, strAmount.charAt(pressedNumKey - 3 - i));
                 }
             }
         }
 
+        if (direction == 1) {
+            if (pressedNumKey > 2) {
+                bAmountInteger.setCharAt((AMOUNT_MAX_DIGIT-3) - (pressedNumKey-2), ' ');
+            } else if (pressedNumKey == 2) {
+                bAmountInteger.setCharAt((AMOUNT_MAX_DIGIT-3) - (pressedNumKey-2), '0');
+            } else if (pressedNumKey == 1) {
+                bAmountDecimal.setCharAt(0, '0');
+            } else {
+                bAmountDecimal.setCharAt(1, '0');
+            }
+        }
+        
         strAmountDecimal = bAmountDecimal.toString();
         strAmountInteger = bAmountInteger.toString();
     }

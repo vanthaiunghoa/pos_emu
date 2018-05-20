@@ -22,6 +22,7 @@ import java.io.FileReader;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.application.Platform;
+import javafx.scene.text.Font;
 import javafx.stage.WindowEvent;
 
 /**
@@ -55,6 +56,9 @@ public class Pos_emu extends Application {
         
         // Create instance of CommandInterpreter
         internalCommandInterpreter = new CommandInterpreter(ihmController);
+        
+        // Load the custom font
+        Font.loadFont(Pos_emu.class.getResource("/pos_emu/font/Monospace.ttf").toExternalForm(),16);
         
         // Create the scene
         Scene scene = new Scene(root);
