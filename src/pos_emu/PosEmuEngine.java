@@ -5,6 +5,8 @@
  */
 package pos_emu;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import javafx.application.Platform;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
@@ -18,9 +20,11 @@ class PosEmuEngine {
     private final int MAX_SCREEN_CHAR = 19;
     private final int AMOUNT_MAX_DIGIT = MAX_SCREEN_CHAR - 5;
     private final String BACKGROUND_IMAGE = "/pos_emu/resource/stone-background.png";
-    private final Paint WHITE_COLOR = Color.web("#DDDDDD");
-    private final Paint RED_COLOR = Color.web("#FFCCCC");
+    private final Paint POS_COLOR_WHITE = Color.web("#FFFFFF");
+    private final Paint POS_COLOR_GREY = Color.web("#DDDDDD");
+    private final Paint POS_COLOR_RED = Color.web("#FFCCCC");
     
+    private final Pos_emu internalPosEmu;
     private final FXMLDocumentController internalIhmController;
     private final ParamConfigFile internalParamData;
     private PosEnums.State currentState = PosEnums.State.STATE_NOT_STARTED;
@@ -29,21 +33,22 @@ class PosEmuEngine {
     private String strAmountInteger;
     private String strAmountDecimal;
     private int pressedNumKey;
-    private int currencyExponent;
-
+    private String currentDateTimeDisplay = "";
+            
     /*
     * Constructor
      */
-    PosEmuEngine(FXMLDocumentController ihmController, ParamConfigFile theParamData) {
+    PosEmuEngine(Pos_emu posEmuController, FXMLDocumentController ihmController, ParamConfigFile theParamData) {
         // Set controller to IHM
         internalIhmController = ihmController;
         internalParamData = theParamData;
+        internalPosEmu = posEmuController;
     }
 
     /*
     * POS Engine (state machine)
      */
-    public void StartEngine(PosEnums.State stateToFix) {
+    public void StartEngine(PosEnums.State stateToFix, boolean clearScreen) {
 
         nextState = stateToFix;
 
@@ -53,11 +58,11 @@ class PosEmuEngine {
             switch (currentState) {
                 case STATE_IDLE:
                     System.out.println("STATE IDLE");
-                    ClearScreen();
+                    ClearScreen(clearScreen);
                     if (Integer.parseInt(internalParamData.GetIdleType()) == 0) {
                         // 2 lines of 16 characters are displayed
-                        DisplayLine(CenterMessage(internalParamData.GetIdleMsg1()), WHITE_COLOR, 0, 120, FONT_CHAR_SIZE);
-                        DisplayLine(CenterMessage(internalParamData.GetIdleMsg2()), WHITE_COLOR, 0, 144, FONT_CHAR_SIZE);
+                        DisplayLine(CenterMessage(internalParamData.GetIdleMsg1()), POS_COLOR_GREY, 0, 140, FONT_CHAR_SIZE);
+                        DisplayLine(CenterMessage(internalParamData.GetIdleMsg2()), POS_COLOR_GREY, 0, 160, FONT_CHAR_SIZE);
                     } else {
                         // A logo is displayed
                         DisplayImage(internalParamData.GetLogo());
@@ -71,25 +76,25 @@ class PosEmuEngine {
                 case STATE_AMOUNT:
                     System.out.println("STATE AMOUNT");
                     // 2 lines of 16 characters are displayed
-                    ClearScreen();
+                    ClearScreen(clearScreen);
                     String str = strAmountInteger + "," + strAmountDecimal + " EUR";
-                    DisplayLine(CenterMessage("DEBIT"), WHITE_COLOR, 0, 100, FONT_CHAR_SIZE);
-                    DisplayLine(str, WHITE_COLOR, 0, 150, FONT_CHAR_SIZE);
+                    DisplayLine(CenterMessage("DEBIT"), POS_COLOR_GREY, 0, 100, FONT_CHAR_SIZE);
+                    DisplayLine(str, POS_COLOR_GREY, 0, 150, FONT_CHAR_SIZE);
                     break;
 
                 case STATE_CARD_WAITING:
                     System.out.println("STATE CARD WAITING");
                     str = strAmountInteger + "," + strAmountDecimal + " EUR";
-                    ClearScreen();
-                    DisplayLine(CenterMessage("INSERT CARD"), WHITE_COLOR, 0, 100, FONT_CHAR_SIZE);
-                    DisplayLine(CenterMessage(str), RED_COLOR, 0, 170, FONT_CHAR_SIZE);
+                    ClearScreen(clearScreen);
+                    DisplayLine(CenterMessage("INSERT CARD"), POS_COLOR_GREY, 0, 100, FONT_CHAR_SIZE);
+                    DisplayLine(CenterMessage(str), POS_COLOR_RED, 0, 170, FONT_CHAR_SIZE);
                     break;
 
                 case TRANSACTION:
                     System.out.println("STATE TRANSACTION");
-                    ClearScreen();
-                    DisplayLine(CenterMessage("TRANSACTION"), WHITE_COLOR, 0, 100, FONT_CHAR_SIZE);
-                    DisplayLine(CenterMessage("EN COURS"), WHITE_COLOR, 0, 150, FONT_CHAR_SIZE);
+                    ClearScreen(clearScreen);
+                    DisplayLine(CenterMessage("TRANSACTION"), POS_COLOR_GREY, 0, 100, FONT_CHAR_SIZE);
+                    DisplayLine(CenterMessage("EN COURS"), POS_COLOR_GREY, 0, 150, FONT_CHAR_SIZE);
                     break;
 
                 default:
@@ -107,36 +112,36 @@ class PosEmuEngine {
                 if (IsNumeric(keyValue) == true) {
                     ClearAmount();
                     AddDigitToAmount(keyValue);
-                    StartEngine(PosEnums.State.STATE_AMOUNT);
+                    StartEngine(PosEnums.State.STATE_AMOUNT, true);
                 }
                 break;
 
             case STATE_MENU_SCREEN:
                 if (keyValue == PosEnums.PosKeyCode.NUM_CANCEL) {
-                    StartEngine(PosEnums.State.STATE_IDLE);
+                    StartEngine(PosEnums.State.STATE_IDLE, true);
                 }
                 break;
 
             case STATE_AMOUNT:
                 if (keyValue == PosEnums.PosKeyCode.NUM_CORR) {
                     RemoveDigitFromAmount();
-                    StartEngine(PosEnums.State.STATE_AMOUNT);
+                    StartEngine(PosEnums.State.STATE_AMOUNT, true);
                 }
                 if (keyValue == PosEnums.PosKeyCode.NUM_VAL) {
-                    StartEngine(PosEnums.State.STATE_CARD_WAITING);
+                    StartEngine(PosEnums.State.STATE_CARD_WAITING, true);
                 }
                 if (keyValue == PosEnums.PosKeyCode.NUM_CANCEL) {
-                    StartEngine(PosEnums.State.STATE_IDLE);
+                    StartEngine(PosEnums.State.STATE_IDLE, true);
                 }
                 if (IsNumeric(keyValue) == true) {
                     AddDigitToAmount(keyValue);
-                    StartEngine(PosEnums.State.STATE_AMOUNT);
+                    StartEngine(PosEnums.State.STATE_AMOUNT, true);
                 }
                 break;
 
             case STATE_CARD_WAITING:
                 if (keyValue == PosEnums.PosKeyCode.NUM_CANCEL) {
-                    StartEngine(PosEnums.State.STATE_IDLE);
+                    StartEngine(PosEnums.State.STATE_IDLE, true);
                 }
                 break;
 
@@ -158,11 +163,16 @@ class PosEmuEngine {
         return (preSpaces + msg);
     }
 
-    private void ClearScreen() {
+    private void ClearScreen(boolean clearScreen) {
+        
+        if (clearScreen == false)
+            return;
+        
         Platform.runLater(() -> {
             internalIhmController.PosScreen.getChildren().clear();
         });
         DisplayImage(BACKGROUND_IMAGE);
+        UpdateTimeOnScreen(true);
     }
 
     private void DisplayImage(String imageToDisplay) {
@@ -174,18 +184,24 @@ class PosEmuEngine {
         });
     }
 
-    private void DisplayLine(String msg, Paint color, int posX, int posY, int size) {
+    private void DisplayLine(Label myLabel, String msg, Paint color, int posX, int posY, int size) {
         // Set label values
-        Label posScreenLabel = new Label(msg);
-        posScreenLabel.setTextFill(color);
-        posScreenLabel.setStyle("-fx-font-family: Monospace; -fx-font-size: " + size + "; -fx-font-weight: bold;");
-        posScreenLabel.setLayoutX(posX);
-        posScreenLabel.setLayoutY(posY);
+        myLabel.setText(msg);
+        myLabel.setTextFill(color);
+        myLabel.setStyle("-fx-font-family: Monospace; -fx-font-size: " + size + "; -fx-font-weight: bold;");
+        myLabel.setLayoutX(posX);
+        myLabel.setLayoutY(posY);
 
         // Set POS screen
         Platform.runLater(() -> {
-            internalIhmController.PosScreen.getChildren().add((posScreenLabel));
+            internalIhmController.PosScreen.getChildren().add(myLabel);
         });
+    }
+
+    private void DisplayLine(String msg, Paint color, int posX, int posY, int size) {
+        // Set label values
+        Label posScreenLabel = new Label("");
+        DisplayLine(posScreenLabel, msg, color, posX, posY, size);
     }
 
     private boolean IsNumeric(PosEnums.PosKeyCode keyValue) {
@@ -299,5 +315,19 @@ class PosEmuEngine {
         String str;
         str = s.substring(0, s.length() - 1);
         return str;
+    }
+    
+    public void UpdateTimeOnScreen(boolean force) {
+      	DateTimeFormatter dtf = DateTimeFormatter.ofPattern("HH:mm dd/MM/yyyy");
+        LocalDateTime now = LocalDateTime.now();
+        String display = dtf.format(now);
+        if ((!currentDateTimeDisplay.equals(display)) || (true == force)) {
+            System.out.println(dtf.format(now)); // 16:28 21/05/2018
+            currentDateTimeDisplay = display;
+            DisplayImage(BACKGROUND_IMAGE);
+            DisplayLine(display.substring(0,5), POS_COLOR_WHITE, 164, 0, 12); // time
+            DisplayLine(display.substring(6,16), POS_COLOR_GREY, 150, 12, 10); // date
+            StartEngine(currentState, false);
+        }
     }
 }

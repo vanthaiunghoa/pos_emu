@@ -22,6 +22,7 @@ import java.io.FileReader;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.application.Platform;
+import javafx.scene.control.Label;
 import javafx.scene.text.Font;
 import javafx.stage.WindowEvent;
 
@@ -75,7 +76,7 @@ public class Pos_emu extends Application {
         config_param_data = ReadJsonConfigFile();
 
         // Create instante of Engine
-        internalPosEmuEngine = new PosEmuEngine(ihmController, config_param_data);
+        internalPosEmuEngine = new PosEmuEngine(this, ihmController, config_param_data);
 
         // Set operations when window is closed
         stage.setOnCloseRequest((WindowEvent we) -> {
@@ -91,7 +92,7 @@ public class Pos_emu extends Application {
         StartPOSBoot();        
         
         // Start the IDLE Screen
-        internalPosEmuEngine.StartEngine(PosEnums.State.STATE_IDLE);
+        internalPosEmuEngine.StartEngine(PosEnums.State.STATE_IDLE, true);
         
         // Add the scene to the stage and launch the stage
         stage.setScene(scene);
@@ -180,7 +181,10 @@ public class Pos_emu extends Application {
                                     break;
                             }
                         }
+                        // Wait 10 ms, not to use all CPU resource
                         Thread.sleep(10);
+                        // Update the time
+                        internalPosEmuEngine.UpdateTimeOnScreen(false);
                     } catch (InterruptedException ex) {
                         Logger.getLogger(Pos_emu.class.getName()).log(Level.SEVERE, null, ex);
                     }
