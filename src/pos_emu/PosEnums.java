@@ -34,7 +34,7 @@ class PosEnums
         STATE_MENU_SCREEN,
         STATE_AMOUNT,
         STATE_CARD_WAITING,
-        TRANSACTION
+        STATE_TRANSACTION
     }
     
     public enum PosEvent

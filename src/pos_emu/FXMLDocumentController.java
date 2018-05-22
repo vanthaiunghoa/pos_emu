@@ -125,14 +125,17 @@ public class FXMLDocumentController implements Initializable {
     @FXML
     private void ButtonSmartCardEvent(ActionEvent event) {
         OutputLabel.setText("SMART CARD INSERTED");
+        eventAvailable = PosEnums.PosEvent.ICC_INSERTED;
     }    
     @FXML
     private void ButtonClessEvent(ActionEvent event) {
         OutputLabel.setText("CONTACTLESS CARD PASSED");
+        eventAvailable = PosEnums.PosEvent.CLESS_CARD;
     }    
     @FXML
     private void ButtonMagstripeEvent(ActionEvent event) {
         OutputLabel.setText("MAGSTRIPE SWIPPED");        
+        eventAvailable = PosEnums.PosEvent.CARD_SWIPED;
     }    
     @FXML
     private void ButtonQuitEvent(ActionEvent event) {

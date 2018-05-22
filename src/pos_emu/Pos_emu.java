@@ -8,7 +8,6 @@ package pos_emu;
 
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
-import javafx.geometry.Pos;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import javafx.scene.Parent;
@@ -22,7 +21,6 @@ import java.io.FileReader;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.application.Platform;
-import javafx.scene.control.Label;
 import javafx.scene.text.Font;
 import javafx.stage.WindowEvent;
 
@@ -50,7 +48,7 @@ public class Pos_emu extends Application {
         Parent root = loader.load();
 
         // First display workping directory
-        System.out.println("Working Directory = " + System.getProperty("user.dir"));
+        PosEmuUtils.DisplayLogInfo("Working Directory = " + System.getProperty("user.dir"));
                
         //Now we have access to getController() through the instance... don't forget the type cast
         ihmController = (FXMLDocumentController)loader.getController();
@@ -80,7 +78,6 @@ public class Pos_emu extends Application {
 
         // Set operations when window is closed
         stage.setOnCloseRequest((WindowEvent we) -> {
-            System.out.println("Stage is closing: " + we);
             Platform.exit();
             System.exit(0);
         });
@@ -114,7 +111,7 @@ public class Pos_emu extends Application {
             bufferedReader = new BufferedReader(new FileReader(param_json_path));        
         } catch(FileNotFoundException e) 
         {
-            System.out.println("Configuration File not found ! - error " + e);
+            PosEmuUtils.DisplayLogError("Configuration File not found ! - error " + e);
         }
         
         // Parse the JSON file
@@ -141,13 +138,13 @@ public class Pos_emu extends Application {
             do {
                 try {
                     // Infinite loop to be always listening 
-                    System.out.println("Wait on TCP listener (" + port + ")");
+                    PosEmuUtils.DisplayLogInfo("Wait on TCP listener (" + port + ")");
                     tcpListener.WaitTCPMessage();
                     
                     // Pause for 100 ms between each thread, i.e. each command
                     Thread.sleep(1);
                 } catch (Exception e) {
-                    System.out.println("Network Error: " + e);
+                    PosEmuUtils.DisplayLogError("Network Error: " + e);
                     
                     // Restart TCP/IP listener                   
                     tcpListener.RestartTCPServer();
@@ -176,6 +173,11 @@ public class Pos_emu extends Application {
                                 case KEY_PRESSED:
                                     PosEnums.PosKeyCode theKey = ihmController.GetKeyCode();
                                     internalPosEmuEngine.EventReceived(theEvent, theKey);
+                                    break;
+                                case ICC_INSERTED:
+                                case CARD_SWIPED:
+                                case CLESS_CARD:
+                                    internalPosEmuEngine.EventReceived(theEvent, PosEnums.PosKeyCode.NO_KEY);
                                     break;
                                 default:
                                     break;

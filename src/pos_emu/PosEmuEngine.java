@@ -23,7 +23,7 @@ class PosEmuEngine {
     private final Paint POS_COLOR_WHITE = Color.web("#FFFFFF");
     private final Paint POS_COLOR_GREY = Color.web("#DDDDDD");
     private final Paint POS_COLOR_RED = Color.web("#FFCCCC");
-    
+
     private final Pos_emu internalPosEmu;
     private final FXMLDocumentController internalIhmController;
     private final ParamConfigFile internalParamData;
@@ -34,7 +34,7 @@ class PosEmuEngine {
     private String strAmountDecimal;
     private int pressedNumKey;
     private String currentDateTimeDisplay = "";
-            
+
     /*
     * Constructor
      */
@@ -54,10 +54,10 @@ class PosEmuEngine {
 
         do {
             currentState = nextState;
-            
+
             switch (currentState) {
                 case STATE_IDLE:
-                    System.out.println("STATE IDLE");
+                    PosEmuUtils.DisplayLogInfo("STATE IDLE");
                     ClearScreen(clearScreen);
                     if (Integer.parseInt(internalParamData.GetIdleType()) == 0) {
                         // 2 lines of 16 characters are displayed
@@ -70,11 +70,11 @@ class PosEmuEngine {
                     break;
 
                 case STATE_MENU_SCREEN:
-                    System.out.println("STATE MENU SCREEN");
+                    PosEmuUtils.DisplayLogInfo("STATE MENU SCREEN");
                     break;
 
                 case STATE_AMOUNT:
-                    System.out.println("STATE AMOUNT");
+                    PosEmuUtils.DisplayLogInfo("STATE AMOUNT");
                     // 2 lines of 16 characters are displayed
                     ClearScreen(clearScreen);
                     String str = strAmountInteger + "," + strAmountDecimal + " EUR";
@@ -83,22 +83,22 @@ class PosEmuEngine {
                     break;
 
                 case STATE_CARD_WAITING:
-                    System.out.println("STATE CARD WAITING");
+                    PosEmuUtils.DisplayLogInfo("STATE CARD WAITING");
                     str = strAmountInteger + "," + strAmountDecimal + " EUR";
                     ClearScreen(clearScreen);
-                    DisplayLine(CenterMessage("INSERT CARD"), POS_COLOR_GREY, 0, 100, FONT_CHAR_SIZE);
+                    DisplayLine(CenterMessage("INSEREZ CARTE"), POS_COLOR_GREY, 0, 100, FONT_CHAR_SIZE);
                     DisplayLine(CenterMessage(str), POS_COLOR_RED, 0, 170, FONT_CHAR_SIZE);
                     break;
 
-                case TRANSACTION:
-                    System.out.println("STATE TRANSACTION");
+                case STATE_TRANSACTION:
+                    PosEmuUtils.DisplayLogInfo("STATE TRANSACTION");
                     ClearScreen(clearScreen);
                     DisplayLine(CenterMessage("TRANSACTION"), POS_COLOR_GREY, 0, 100, FONT_CHAR_SIZE);
                     DisplayLine(CenterMessage("EN COURS"), POS_COLOR_GREY, 0, 150, FONT_CHAR_SIZE);
                     break;
 
                 default:
-                    System.out.println("STATE DEFAULT");
+                    PosEmuUtils.DisplayLogInfo("STATE DEFAULT");
                     break;
             }
 
@@ -109,43 +109,60 @@ class PosEmuEngine {
 
         switch (currentState) {
             case STATE_IDLE:
-                if (IsNumeric(keyValue) == true) {
-                    ClearAmount();
-                    AddDigitToAmount(keyValue);
-                    StartEngine(PosEnums.State.STATE_AMOUNT, true);
+                if (receivedEvent == PosEnums.PosEvent.KEY_PRESSED) {
+                    if (IsNumeric(keyValue) == true) {
+                        ClearAmount();
+                        AddDigitToAmount(keyValue);
+                        StartEngine(PosEnums.State.STATE_AMOUNT, true);
+                    }
                 }
                 break;
 
             case STATE_MENU_SCREEN:
-                if (keyValue == PosEnums.PosKeyCode.NUM_CANCEL) {
-                    StartEngine(PosEnums.State.STATE_IDLE, true);
+                if (receivedEvent == PosEnums.PosEvent.KEY_PRESSED) {
+                    if (keyValue == PosEnums.PosKeyCode.NUM_CANCEL) {
+                        StartEngine(PosEnums.State.STATE_IDLE, true);
+                    }
                 }
                 break;
 
             case STATE_AMOUNT:
-                if (keyValue == PosEnums.PosKeyCode.NUM_CORR) {
-                    RemoveDigitFromAmount();
-                    StartEngine(PosEnums.State.STATE_AMOUNT, true);
-                }
-                if (keyValue == PosEnums.PosKeyCode.NUM_VAL) {
-                    StartEngine(PosEnums.State.STATE_CARD_WAITING, true);
-                }
-                if (keyValue == PosEnums.PosKeyCode.NUM_CANCEL) {
-                    StartEngine(PosEnums.State.STATE_IDLE, true);
-                }
-                if (IsNumeric(keyValue) == true) {
-                    AddDigitToAmount(keyValue);
-                    StartEngine(PosEnums.State.STATE_AMOUNT, true);
+                if (receivedEvent == PosEnums.PosEvent.KEY_PRESSED) {
+                    if (keyValue == PosEnums.PosKeyCode.NUM_CORR) {
+                        RemoveDigitFromAmount();
+                        StartEngine(PosEnums.State.STATE_AMOUNT, true);
+                    }
+                    if (keyValue == PosEnums.PosKeyCode.NUM_VAL) {
+                        StartEngine(PosEnums.State.STATE_CARD_WAITING, true);
+                    }
+                    if (keyValue == PosEnums.PosKeyCode.NUM_CANCEL) {
+                        StartEngine(PosEnums.State.STATE_IDLE, true);
+                    }
+                    if (IsNumeric(keyValue) == true) {
+                        AddDigitToAmount(keyValue);
+                        StartEngine(PosEnums.State.STATE_AMOUNT, true);
+                    }
                 }
                 break;
 
             case STATE_CARD_WAITING:
-                if (keyValue == PosEnums.PosKeyCode.NUM_CANCEL) {
-                    StartEngine(PosEnums.State.STATE_IDLE, true);
+                if (receivedEvent == PosEnums.PosEvent.KEY_PRESSED) {
+                    if (keyValue == PosEnums.PosKeyCode.NUM_CANCEL) {
+                        StartEngine(PosEnums.State.STATE_IDLE, true);
+                    }
+                } else if ((receivedEvent == PosEnums.PosEvent.ICC_INSERTED)
+                        || (receivedEvent == PosEnums.PosEvent.CARD_SWIPED)
+                        || (receivedEvent == PosEnums.PosEvent.CLESS_CARD)) {
+                    StartEngine(PosEnums.State.STATE_TRANSACTION, true);
                 }
                 break;
 
-            case TRANSACTION:
+            case STATE_TRANSACTION:
+                if (receivedEvent == PosEnums.PosEvent.KEY_PRESSED) {
+                    if (keyValue == PosEnums.PosKeyCode.NUM_CANCEL) {
+                        StartEngine(PosEnums.State.STATE_IDLE, true);
+                    }
+                }
                 break;
 
             default:
@@ -164,10 +181,11 @@ class PosEmuEngine {
     }
 
     private void ClearScreen(boolean clearScreen) {
-        
-        if (clearScreen == false)
+
+        if (clearScreen == false) {
             return;
-        
+        }
+
         Platform.runLater(() -> {
             internalIhmController.PosScreen.getChildren().clear();
         });
@@ -316,17 +334,16 @@ class PosEmuEngine {
         str = s.substring(0, s.length() - 1);
         return str;
     }
-    
+
     public void UpdateTimeOnScreen(boolean force) {
-      	DateTimeFormatter dtf = DateTimeFormatter.ofPattern("HH:mm dd/MM/yyyy");
+        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("HH:mm dd/MM/yyyy");
         LocalDateTime now = LocalDateTime.now();
         String display = dtf.format(now);
         if ((!currentDateTimeDisplay.equals(display)) || (true == force)) {
-            System.out.println(dtf.format(now)); // 16:28 21/05/2018
             currentDateTimeDisplay = display;
             DisplayImage(BACKGROUND_IMAGE);
-            DisplayLine(display.substring(0,5), POS_COLOR_WHITE, 164, 0, 12); // time
-            DisplayLine(display.substring(6,16), POS_COLOR_GREY, 150, 12, 10); // date
+            DisplayLine(display.substring(0, 5), POS_COLOR_WHITE, 164, 0, 12); // time
+            DisplayLine(display.substring(6, 16), POS_COLOR_GREY, 150, 12, 10); // date
             StartEngine(currentState, false);
         }
     }

@@ -82,8 +82,8 @@ public class CommandInterpreter {
         // Get the command and the version
         String cmd = msg.GetCommand();
         String version = msg.GetVersion();
-        System.out.println("json cmd=" + cmd);
-        System.out.println("json version=" + version);
+        PosEmuUtils.DisplayLogInfo("json cmd=" + cmd);
+        PosEmuUtils.DisplayLogInfo("json version=" + version);
         
         // Configure label to display
         String labelMsg = msg.GetMessageToDisplay();
