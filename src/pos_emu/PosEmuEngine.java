@@ -46,9 +46,9 @@ class PosEmuEngine {
     }
 
     /*
-    * POS Engine (state machine)
+     * POS Engine (state machine)
      */
-    public void StartEngine(PosEnums.State stateToFix, boolean clearScreen) {
+    public void StartEngine(PosEnums.State stateToFix, boolean clearScreen, PosEnums.PosEvent theEvent) {
 
         nextState = stateToFix;
 
@@ -94,7 +94,19 @@ class PosEmuEngine {
                     PosEmuUtils.DisplayLogInfo("STATE TRANSACTION");
                     ClearScreen(clearScreen);
                     DisplayLine(CenterMessage("TRANSACTION"), POS_COLOR_GREY, 0, 100, FONT_CHAR_SIZE);
-                    DisplayLine(CenterMessage("EN COURS"), POS_COLOR_GREY, 0, 150, FONT_CHAR_SIZE);
+                    String eventMessage = "CARTE";
+                    switch(theEvent) {
+                        case CARD_SWIPED:
+                            eventMessage = "PISTE";
+                            break;
+                        case CLESS_CARD:
+                            eventMessage = "CONTACLESS";
+                            break;
+                        default:
+                        break;                       
+                    }
+                    DisplayLine(CenterMessage(eventMessage), POS_COLOR_GREY, 0, 150, FONT_CHAR_SIZE);
+                    DisplayLine(CenterMessage("EN COURS"), POS_COLOR_GREY, 0, 170, FONT_CHAR_SIZE);
                     break;
 
                 default:
@@ -103,6 +115,13 @@ class PosEmuEngine {
             }
 
         } while (currentState != nextState);
+    }
+    
+    /*
+     * POS Engine (state machine)
+     */
+    public void StartEngine(PosEnums.State stateToFix, boolean clearScreen) {
+        StartEngine(stateToFix, clearScreen, PosEnums.PosEvent.NO_EVENT);
     }
 
     public void EventReceived(PosEnums.PosEvent receivedEvent, PosEnums.PosKeyCode keyValue) {
@@ -153,7 +172,7 @@ class PosEmuEngine {
                 } else if ((receivedEvent == PosEnums.PosEvent.ICC_INSERTED)
                         || (receivedEvent == PosEnums.PosEvent.CARD_SWIPED)
                         || (receivedEvent == PosEnums.PosEvent.CLESS_CARD)) {
-                    StartEngine(PosEnums.State.STATE_TRANSACTION, true);
+                    StartEngine(PosEnums.State.STATE_TRANSACTION, true, receivedEvent);
                 }
                 break;
 
