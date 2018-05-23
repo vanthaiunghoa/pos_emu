@@ -59,13 +59,13 @@ class PosEmuEngine {
                 case STATE_IDLE:
                     PosEmuUtils.DisplayLogInfo("STATE IDLE");
                     ClearScreen(clearScreen);
-                    if (Integer.parseInt(internalParamData.GetIdleType()) == 0) {
+                    if (Integer.parseInt(internalParamData.GetIdleType()) != 0) {
+                        // A logo is displayed
+                        DisplayImage(internalParamData.GetLogo());
+                    } else {
                         // 2 lines of 16 characters are displayed
                         DisplayLine(CenterMessage(internalParamData.GetIdleMsg1()), POS_COLOR_GREY, 0, 140, FONT_CHAR_SIZE);
                         DisplayLine(CenterMessage(internalParamData.GetIdleMsg2()), POS_COLOR_GREY, 0, 160, FONT_CHAR_SIZE);
-                    } else {
-                        // A logo is displayed
-                        DisplayImage(internalParamData.GetLogo());
                     }
                     break;
 

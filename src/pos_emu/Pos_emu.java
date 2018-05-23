@@ -158,40 +158,37 @@ public class Pos_emu extends Application {
      */
     private void StartEventListener(FXMLDocumentController ihmController, PosEmuEngine internalPosEmuEngine) {
        // Wait for a command
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                do {
-                    try {
-                        // Check if an event is available
-                        PosEnums.PosEvent theEvent = ihmController.IsEventAvailable();
-                        if (theEvent != PosEnums.PosEvent.NO_EVENT)
+        new Thread(() -> {
+            do {
+                try {
+                    // Check if an event is available
+                    PosEnums.PosEvent theEvent = ihmController.IsEventAvailable();
+                    if (theEvent != PosEnums.PosEvent.NO_EVENT)
+                    {
+                        // there is an event
+                        switch(theEvent)
                         {
-                            // there is an event
-                            switch(theEvent)
-                            {
-                                case KEY_PRESSED:
-                                    PosEnums.PosKeyCode theKey = ihmController.GetKeyCode();
-                                    internalPosEmuEngine.EventReceived(theEvent, theKey);
-                                    break;
-                                case ICC_INSERTED:
-                                case CARD_SWIPED:
-                                case CLESS_CARD:
-                                    internalPosEmuEngine.EventReceived(theEvent, PosEnums.PosKeyCode.NO_KEY);
-                                    break;
-                                default:
-                                    break;
-                            }
+                            case KEY_PRESSED:
+                                PosEnums.PosKeyCode theKey = ihmController.GetKeyCode();
+                                internalPosEmuEngine.EventReceived(theEvent, theKey);
+                                break;
+                            case ICC_INSERTED:
+                            case CARD_SWIPED:
+                            case CLESS_CARD:
+                                internalPosEmuEngine.EventReceived(theEvent, PosEnums.PosKeyCode.NO_KEY);
+                                break;
+                            default:
+                                break;
                         }
-                        // Wait 10 ms, not to use all CPU resource
-                        Thread.sleep(10);
-                        // Update the time
-                        internalPosEmuEngine.UpdateTimeOnScreen(false);
-                    } catch (InterruptedException ex) {
-                        Logger.getLogger(Pos_emu.class.getName()).log(Level.SEVERE, null, ex);
                     }
-                } while (true);
-            }
+                    // Wait 10 ms, not to use all CPU resource
+                    Thread.sleep(10);
+                    // Update the time
+                    internalPosEmuEngine.UpdateTimeOnScreen(false);
+                } catch (InterruptedException ex) {
+                    Logger.getLogger(Pos_emu.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            } while (true);
         }).start();         
    }  
     
