@@ -47,7 +47,7 @@ public class Pos_emu extends Application {
         FXMLLoader loader = new FXMLLoader(getClass().getResource("FXMLDocument.fxml"));
         Parent root = loader.load();
 
-        // First display workping directory
+        // First display working directory
         PosEmuUtils.DisplayLogInfo("Working Directory = " + System.getProperty("user.dir"));
                
         //Now we have access to getController() through the instance... don't forget the type cast
@@ -66,7 +66,7 @@ public class Pos_emu extends Application {
         // Window not resizable
         stage.setResizable(false);
       
-        // Adding a icon 
+        // Adding an icon 
         Image appliIcon = new Image(Pos_emu.class.getResourceAsStream( "resource/icon.png" ));
         stage.getIcons().add(appliIcon); 
         
@@ -189,7 +189,7 @@ public class Pos_emu extends Application {
                     Logger.getLogger(Pos_emu.class.getName()).log(Level.SEVERE, null, ex);
                 }
             } while (true);
-        }).start();         
+        }).start();
    }  
     
     /**
