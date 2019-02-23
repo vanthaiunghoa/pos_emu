@@ -34,7 +34,10 @@ class PosEnums
         STATE_MENU_SCREEN,
         STATE_AMOUNT,
         STATE_CARD_WAITING,
-        STATE_TRANSACTION
+        STATE_TRANSACTION_ICC,
+        STATE_TRANSACTION_MAGSTRIPE,
+        STATE_TRANSACTION_CLESS,
+        STATE_PIN_ENTRY
     }
     
     public enum PosEvent
