@@ -75,6 +75,8 @@ public class Pos_emu extends Application {
 
         // Create instante of Engine
         internalPosEmuEngine = new PosEmuEngine(this, ihmController, config_param_data);
+        // And initialize it
+        internalPosEmuEngine.initializePosEngine();
 
         // Set operations when window is closed
         stage.setOnCloseRequest((WindowEvent we) -> {

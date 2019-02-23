@@ -13,6 +13,11 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
+import c_icc.C_icc;
+import c_icc.C_icc_pcsc;
+import c_icc.C_icc_virtual;
+import c_common.C_logger_stdout;
+import c_common.C_err;
 
 class PosEmuEngine {
 
@@ -45,6 +50,39 @@ class PosEmuEngine {
         internalPosEmu = posEmuController;
     }
 
+    public void initializePosEngine() {
+        // Icc type
+        C_icc.SmartCardManagementType smartCardType = C_icc.SmartCardManagementType.SMARTCARD_PCSC;
+        
+        // Create ICC module
+        C_icc m_icc;
+        C_err.Icc retIcc;
+        String response;
+
+        // According to the parameter, use PC/SC or virtual Smart-Card
+        if (smartCardType == C_icc.SmartCardManagementType.SMARTCARD_VIRTUAL) {
+            // Create ICC smart card component based on PCSC
+            m_icc = new C_icc_pcsc("m_icc");
+        } else {
+            // Create virtual card (no need for a real reader)
+            m_icc = new C_icc_virtual("m_icc");
+        }
+        
+        // Initialize module
+        String module_name = m_icc.getModuleName();
+        C_logger_stdout.LogInfo(module_name, "Module Created");        
+        
+        m_icc.initModule();
+        C_logger_stdout.LogInfo(module_name, "Module Initialization Done");
+        
+        retIcc = m_icc.IccConnectReader(null);
+        if (C_err.Icc.ERR_ICC_OK == retIcc) {
+            C_logger_stdout.LogInfo(module_name, "Reader Connected : " + m_icc.IccGetReaderName());
+        } else {
+            C_logger_stdout.LogError(module_name, "Problem connecting to reader");
+        }
+    }
+    
     /*
      * POS Engine (state machine)
      */
@@ -94,8 +132,11 @@ class PosEmuEngine {
                     PosEmuUtils.DisplayLogInfo("STATE TRANSACTION");
                     ClearScreen(clearScreen);
                     DisplayLine(CenterMessage("TRANSACTION"), POS_COLOR_GREY, 0, 100, FONT_CHAR_SIZE);
-                    String eventMessage = "CARTE";
+                    String eventMessage;
                     switch(theEvent) {
+                        case ICC_INSERTED:
+                            eventMessage = "CARTE";
+                            break;
                         case CARD_SWIPED:
                             eventMessage = "PISTE";
                             break;
@@ -103,7 +144,8 @@ class PosEmuEngine {
                             eventMessage = "CONTACLESS";
                             break;
                         default:
-                        break;                       
+                            eventMessage = "CARTE";
+                            break;                       
                     }
                     DisplayLine(CenterMessage(eventMessage), POS_COLOR_GREY, 0, 150, FONT_CHAR_SIZE);
                     DisplayLine(CenterMessage("EN COURS"), POS_COLOR_GREY, 0, 170, FONT_CHAR_SIZE);

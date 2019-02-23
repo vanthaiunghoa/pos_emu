@@ -1,0 +1,12 @@
+{
+    "module_name" : "m_icc",
+    "module_version": "0.1.0",
+    "ip_port": 8999,
+    "module_type" : "server",
+    "reader_type" : "pcsc",
+    "aid_list" : [
+        [{"aid" : "A0000000421010"},  {"priority" : "FE"}, {"forcage" : 1}],
+        [{"aid" : "A0000000031010"},  {"priority" : "7F"}, {"forcage" : 1}],
+        [{"aid" : "A0000000041010"},  {"priority" : "7F"}, {"forcage" : 1}]
+        ]            
+}
