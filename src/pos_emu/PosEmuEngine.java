@@ -180,6 +180,8 @@ class PosEmuEngine {
                 DisplayLine(CenterMessage("TRANSACTION"), POS_COLOR_GREY, 0, 100, FONT_CHAR_SIZE);
                 DisplayLine(CenterMessage("PISTE"), POS_COLOR_GREY, 0, 150, FONT_CHAR_SIZE);
                 DisplayLine(CenterMessage("EN COURS"), POS_COLOR_GREY, 0, 170, FONT_CHAR_SIZE);
+                // Start a timer
+                internalIhmController.StartTimerEvent(TIMER_1_SECONDS);
                 break;
 
             case STATE_TRANSACTION_CLESS:
@@ -212,6 +214,12 @@ class PosEmuEngine {
                 DisplayLine(CenterMessage("CODE FAUX"), POS_COLOR_GREY, 0, 100, FONT_CHAR_SIZE);
                 break;
 
+            case STATE_AUTORISATION:
+                PosEmuUtils.DisplayLogInfo("STATE AUTORISATION");
+                DisplayLine(CenterMessage("AUTORISATION"), POS_COLOR_GREY, 0, 100, FONT_CHAR_SIZE);
+                DisplayLine(CenterMessage("EN COURS"), POS_COLOR_GREY, 0, 150, FONT_CHAR_SIZE);
+                break;
+                        
             case STATE_TRANSACTION_RESULT_OK:
                 PosEmuUtils.DisplayLogInfo("STATE TRX RESULT OK");
                 DisplayLine(CenterMessage("PAIEMENT ACCEPTE"), POS_COLOR_GREY, 0, 100, FONT_CHAR_SIZE);
@@ -309,6 +317,21 @@ class PosEmuEngine {
                 break;
 
             case STATE_TRANSACTION_MAGSTRIPE:
+                StartEngine(PosEnums.State.STATE_AUTORISATION, true);
+                // Start a timer
+                internalIhmController.StartTimerEvent(TIMER_1_SECONDS);
+                break;
+
+            case STATE_AUTORISATION:
+                if (strAmountDecimal.equals("00") == true) {
+                    StartEngine(PosEnums.State.STATE_TRANSACTION_RESULT_OK, true);
+                } else {
+                    StartEngine(PosEnums.State.STATE_TRANSACTION_RESULT_NOK, true);
+                }
+                // Start a timer
+                internalIhmController.StartTimerEvent(TIMER_2_SECONDS);
+                break;
+                
             case STATE_TRANSACTION_CLESS:
                 if (receivedEvent == PosEnums.PosEvent.KEY_PRESSED) {
                     if (keyValue == PosEnums.PosKeyCode.NUM_CANCEL) {
