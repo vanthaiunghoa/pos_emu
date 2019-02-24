@@ -95,7 +95,7 @@ class PosEmuEngine {
         
         nextState = stateToFix;
 
-        do {            
+//        do {            
             currentState = nextState;
             ClearScreen(clearScreen);
 
@@ -233,7 +233,7 @@ class PosEmuEngine {
                     break;
             }
 
-        } while (currentState != nextState);
+ //       } while (currentState != nextState);
     }
 
     /*
@@ -402,7 +402,7 @@ class PosEmuEngine {
             internalIhmController.PosScreen.getChildren().clear();
         });
         DisplayImage(BACKGROUND_IMAGE);
-        UpdateTimeOnScreen(true);
+        UpdateTimeOnScreen(false);
     }
 
     private void DisplayImage(String imageToDisplay) {
