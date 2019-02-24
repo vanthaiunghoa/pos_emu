@@ -179,6 +179,9 @@ public class Pos_emu extends Application {
                             case CLESS_CARD:
                                 internalPosEmuEngine.EventReceived(theEvent, PosEnums.PosKeyCode.NO_KEY);
                                 break;
+                            case TIMER_EVENT:
+                                internalPosEmuEngine.EventReceived(theEvent, PosEnums.PosKeyCode.NO_KEY);
+                                break;
                             default:
                                 break;
                         }

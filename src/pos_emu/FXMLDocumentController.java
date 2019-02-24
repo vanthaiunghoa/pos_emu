@@ -25,6 +25,8 @@ public class FXMLDocumentController implements Initializable {
     public Pane PosScreen;    
     private PosEnums.PosEvent eventAvailable = PosEnums.PosEvent.NO_EVENT;
     private PosEnums.PosKeyCode eventKeyCode = PosEnums.PosKeyCode.NO_KEY;
+    private long timerEndTime;
+    private boolean timerRun = false;
     
     @FXML
     private void Button0Event(ActionEvent event) {
@@ -143,8 +145,30 @@ public class FXMLDocumentController implements Initializable {
         System.exit(0);
     }    
 
+    private void CheckTimerEvent() {
+        if (timerRun == true) {
+            // Check if end time is reached
+            if (System.currentTimeMillis() >= timerEndTime) {            
+                eventAvailable = PosEnums.PosEvent.TIMER_EVENT;
+                timerRun = false;
+                PosEmuUtils.DisplayLogInfo("Timer Event Occured");
+            }
+        } 
+    }
+    
+    public void StartTimerEvent(long myTimerValue) {
+        // Set timer end time
+        timerEndTime = System.currentTimeMillis() + myTimerValue;
+        timerRun = true;
+        PosEmuUtils.DisplayLogInfo("Timer Event Start = " + timerEndTime);
+   }
+    
     public PosEnums.PosEvent IsEventAvailable()
     {
+        // First check if a timer event has occured
+        CheckTimerEvent();
+        
+        // Check if there is another event (keyboard, card, ...)
         PosEnums.PosEvent retEvent = eventAvailable;
         eventAvailable = PosEnums.PosEvent.NO_EVENT;
         return retEvent;

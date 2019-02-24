@@ -54,6 +54,8 @@ class PosEnums
         COMM_MESSAGE,
         ICC_INSERTED,
         CARD_SWIPED,
-        CLESS_CARD
+        CLESS_CARD,
+        TIMER_EVENT
     }
+    
 }
