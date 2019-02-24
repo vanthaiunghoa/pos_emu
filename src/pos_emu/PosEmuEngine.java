@@ -35,9 +35,12 @@ class PosEmuEngine {
 
     private final String BLIND_PIN = "****************";
 
+    // Modules
     private final Pos_emu internalPosEmu;
     private final FXMLDocumentController internalIhmController;
     private final ParamConfigFile internalParamData;
+    private final C_icc m_icc;
+    
     private PosEnums.State currentState = PosEnums.State.STATE_NOT_STARTED;
     private PosEnums.State nextState;
     private String strAmount;
@@ -46,48 +49,21 @@ class PosEmuEngine {
     private int pressedNumKey;
     private String currentDateTimeDisplay = "";
 
-    private C_icc m_icc;
     private C_err.Icc retIcc;
     private String module_name;
     private String PinCode;
 
     private PosEnums.PosTransactionTechno typeCurrentTrxTechno;
-    
+
     /*
     * Constructor
      */
-    PosEmuEngine(Pos_emu posEmuController, FXMLDocumentController ihmController, ParamConfigFile theParamData) {
+    PosEmuEngine(Pos_emu posEmuController, FXMLDocumentController ihmController, ParamConfigFile theParamData, C_icc module_icc) {
         // Set controller to IHM
         internalIhmController = ihmController;
         internalParamData = theParamData;
         internalPosEmu = posEmuController;
-    }
-
-    public C_err.Icc initializePosEngine(C_icc.SmartCardManagementType smartCardType) {
-        // According to the parameter, use PC/SC or virtual Smart-Card
-        if (smartCardType == C_icc.SmartCardManagementType.SMARTCARD_PCSC) {
-            // Create ICC smart card component based on PCSC
-            m_icc = new C_icc_pcsc("m_icc");
-        } else {
-            // Create virtual card (no need for a real reader)
-            m_icc = new C_icc_virtual("m_icc");
-        }
-
-        // Initialize module
-        module_name = m_icc.getModuleName();
-        C_logger_stdout.LogInfo(module_name, "Module Created");
-
-        m_icc.initModule();
-        C_logger_stdout.LogInfo(module_name, "Module Initialization Done");
-
-        retIcc = m_icc.IccConnectReader(null);
-        if (C_err.Icc.ERR_ICC_OK == retIcc) {
-            C_logger_stdout.LogInfo(module_name, "Reader Connected : " + m_icc.IccGetReaderName());
-        } else {
-            C_logger_stdout.LogError(module_name, "Problem connecting to reader");
-        }
-
-        return retIcc;
+        m_icc = module_icc;
     }
 
     /*
@@ -145,7 +121,7 @@ class PosEmuEngine {
                 DisplayLine(CenterMessage("EN COURS"), POS_COLOR_GREY, 0, 170, FONT_CHAR_SIZE);
 
                 typeCurrentTrxTechno = PosEnums.PosTransactionTechno.TRX_ICC;
-                
+
                 // read the card
                 retIcc = m_icc.IccConnectSmartCard();
                 if (C_err.Icc.ERR_ICC_OK == retIcc) {
@@ -273,6 +249,15 @@ class PosEmuEngine {
 
     public void EventReceived(PosEnums.PosEvent receivedEvent, PosEnums.PosKeyCode keyValue) {
 
+        // Update smart card status
+        if (receivedEvent == PosEnums.PosEvent.ICC_INSERTED) {
+            if (m_icc.IccIsCardPresent() == true) {
+                m_icc.IccSetCardPresent(false);
+            } else {
+                m_icc.IccSetCardPresent(true);
+            }
+        }
+
         switch (currentState) {
             case STATE_IDLE:
                 if (receivedEvent == PosEnums.PosEvent.KEY_PRESSED) {
@@ -281,7 +266,7 @@ class PosEmuEngine {
                         AddDigitToAmount(keyValue);
                         StartEngine(PosEnums.State.STATE_AMOUNT, true);
                     } else if (keyValue == PosEnums.PosKeyCode.NUM_MENU) {
-                        StartEngine(PosEnums.State.STATE_MENU_SCREEN, true);                    
+                        StartEngine(PosEnums.State.STATE_MENU_SCREEN, true);
                     }
                 }
                 break;
@@ -300,8 +285,8 @@ class PosEmuEngine {
                         RemoveDigitFromAmount();
                         StartEngine(PosEnums.State.STATE_AMOUNT, true);
                     }
-                    if (keyValue == PosEnums.PosKeyCode.NUM_VAL) {                       
-                        if (internalIhmController.CheckCardPresence() == true) {
+                    if (keyValue == PosEnums.PosKeyCode.NUM_VAL) {
+                        if (m_icc.IccIsCardPresent() == true) {
                             // Card already present
                             StartEngine(PosEnums.State.STATE_TRANSACTION_ICC, true, receivedEvent);
                         } else {
@@ -361,7 +346,7 @@ class PosEmuEngine {
 
             case STATE_PIN_ENTRY:
 
-                if (internalIhmController.CheckCardPresence() == false) {
+                if (m_icc.IccIsCardPresent() == false) {
                     // Card removed
                     StartEngine(PosEnums.State.STATE_CARD_REMOVED, true);
 
@@ -400,14 +385,14 @@ class PosEmuEngine {
                             internalIhmController.StartTimerEvent(TIMER_1_SECONDS);
                         }
                     }
-                }                        
+                }
                 break;
 
-        case STATE_CARD_REMOVED:
-            StartEngine(PosEnums.State.STATE_IDLE, true);
-            break;
-                
-        case STATE_PIN_RESULT_OK:
+            case STATE_CARD_REMOVED:
+                StartEngine(PosEnums.State.STATE_IDLE, true);
+                break;
+
+            case STATE_PIN_RESULT_OK:
                 if (strAmountDecimal.equals("00") == true) {
                     StartEngine(PosEnums.State.STATE_TRANSACTION_RESULT_OK, true);
                 } else {
@@ -416,7 +401,7 @@ class PosEmuEngine {
 
                 // Disconnect card                
                 m_icc.IccDisconnect();
-                
+
                 // Start a timer
                 internalIhmController.StartTimerEvent(TIMER_1_SECONDS);
                 break;
@@ -431,7 +416,8 @@ class PosEmuEngine {
             case STATE_TRANSACTION_RESULT_OK:
             case STATE_TRANSACTION_RESULT_NOK:
                 // First check card presence
-                if (PosEnums.PosTransactionTechno.TRX_ICC == typeCurrentTrxTechno) {
+                if ((PosEnums.PosTransactionTechno.TRX_ICC == typeCurrentTrxTechno) 
+                        && (m_icc.IccIsCardPresent() == true)) {
                     // This is a smart card transaction, so ask for card removal
                     StartEngine(PosEnums.State.STATE_WAIT_CARD_REMOVE, true);
                 } else {
@@ -441,14 +427,14 @@ class PosEmuEngine {
                 }
                 break;
 
-            case STATE_WAIT_CARD_REMOVE:
+            case STATE_WAIT_CARD_REMOVE:                
                 if (receivedEvent == PosEnums.PosEvent.ICC_INSERTED) {
                     StartEngine(PosEnums.State.STATE_PRINT_CUSTOMER_RECEIPT, true);
                     // Start a timer
                     internalIhmController.StartTimerEvent(TIMER_1_SECONDS);
                 }
                 break;
-                
+
             case STATE_PRINT_CUSTOMER_RECEIPT:
                 if (receivedEvent == PosEnums.PosEvent.KEY_PRESSED) {
                     StartEngine(PosEnums.State.STATE_PRINT_MERCHANT_RECEIPT, true);
@@ -465,8 +451,6 @@ class PosEmuEngine {
                 break;
         }
     }
-
-    
 
     private String CenterMessage(String msg) {
         int spaceNb = (MAX_SCREEN_CHAR - msg.length()) / 2;

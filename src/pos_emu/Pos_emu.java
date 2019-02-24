@@ -7,7 +7,10 @@
 package pos_emu;
 
 import c_common.C_err;
+import c_common.C_logger_stdout;
 import c_icc.C_icc;
+import c_icc.C_icc_pcsc;
+import c_icc.C_icc_virtual;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.stage.Stage;
@@ -39,9 +42,16 @@ public class Pos_emu extends Application {
     FXMLDocumentController ihmController;
     private CommandInterpreter internalCommandInterpreter;
     private PosEmuEngine internalPosEmuEngine;
+    private C_icc internal_m_icc;
+
+    private C_err.Icc retIcc;
+    private String module_name;
     
     // Parameters from configuration file
     private ParamConfigFile config_param_data;
+    
+    // Smart card card presence/absence detection
+    private boolean bSmartCardPresent = false;
     
     @Override
     public void start(Stage stage) throws Exception {
@@ -74,14 +84,13 @@ public class Pos_emu extends Application {
         
         // Read Configuration file 
         config_param_data = ReadJsonConfigFile();
-
+        
         // Create instante of Engine
-        internalPosEmuEngine = new PosEmuEngine(this, ihmController, config_param_data);
-        // And initialize it
-        if (internalPosEmuEngine.initializePosEngine(C_icc.SmartCardManagementType.SMARTCARD_PCSC) != C_err.Icc.ERR_ICC_OK) {
-            // Error occured with PCSC, open again with Virtual card
-            internalPosEmuEngine.initializePosEngine(C_icc.SmartCardManagementType.SMARTCARD_VIRTUAL);
+        retIcc = initializePosEngine(C_icc.SmartCardManagementType.SMARTCARD_PCSC);
+        if (retIcc != C_err.Icc.ERR_ICC_OK) {
+            initializePosEngine(C_icc.SmartCardManagementType.SMARTCARD_VIRTUAL);
         }
+        internalPosEmuEngine = new PosEmuEngine(this, ihmController, config_param_data, internal_m_icc);
 
         // Set operations when window is closed
         stage.setOnCloseRequest((WindowEvent we) -> {
@@ -104,6 +113,33 @@ public class Pos_emu extends Application {
         stage.show();
     }
 
+    public C_err.Icc initializePosEngine(C_icc.SmartCardManagementType smartCardType) {
+        // According to the parameter, use PC/SC or virtual Smart-Card
+        if (smartCardType == C_icc.SmartCardManagementType.SMARTCARD_PCSC) {
+            // Create ICC smart card component based on PCSC
+            internal_m_icc = new C_icc_pcsc("m_icc");
+        } else {
+            // Create virtual card (no need for a real reader)
+            internal_m_icc = new C_icc_virtual("m_icc");
+        }
+
+        // Initialize module
+        module_name = internal_m_icc.getModuleName();
+        C_logger_stdout.LogInfo(module_name, "Module Created");
+
+        internal_m_icc.initModule();
+        C_logger_stdout.LogInfo(module_name, "Module Initialization Done");
+
+        retIcc = internal_m_icc.IccConnectReader(null);
+        if (C_err.Icc.ERR_ICC_OK == retIcc) {
+            C_logger_stdout.LogInfo(module_name, "Reader Connected : " + internal_m_icc.IccGetReaderName());
+        } else {
+            C_logger_stdout.LogError(module_name, "Problem connecting to reader");
+        }
+
+        return retIcc;
+    }
+    
     /**
      * Read the configuration file : param.json
      * 
@@ -170,6 +206,13 @@ public class Pos_emu extends Application {
                 try {
                     // Check if an event is available
                     PosEnums.PosEvent theEvent = ihmController.IsEventAvailable();
+
+                    // Check smart card event
+                    if (theEvent == PosEnums.PosEvent.NO_EVENT) {
+                        theEvent = CheckSmartCardEvent();
+                    }
+                    
+                    // Manage the event
                     if (theEvent != PosEnums.PosEvent.NO_EVENT)
                     {
                         // there is an event
@@ -190,6 +233,9 @@ public class Pos_emu extends Application {
                             default:
                                 break;
                         }
+                        // Update Smart card status
+                        bSmartCardPresent = internal_m_icc.IccIsCardPresent();
+                        theEvent = PosEnums.PosEvent.NO_EVENT;
                     }
                     // Wait 10 ms, not to use all CPU resource
                     Thread.sleep(10);
@@ -201,7 +247,17 @@ public class Pos_emu extends Application {
             } while (true);
         }).start();
    }  
-    
+
+    private PosEnums.PosEvent CheckSmartCardEvent() {
+        PosEnums.PosEvent ev = PosEnums.PosEvent.NO_EVENT;
+        if (bSmartCardPresent != internal_m_icc.IccIsCardPresent()) {
+            PosEmuUtils.DisplayLogInfo("difference");
+            ev = PosEnums.PosEvent.ICC_INSERTED;
+        }
+        
+        return ev;
+    }
+
     /**
      * @param args the command line arguments
      */
