@@ -29,6 +29,8 @@ class PosEmuEngine {
     private final Paint POS_COLOR_GREY = Color.web("#DDDDDD");
     private final Paint POS_COLOR_RED = Color.web("#FFCCCC");
 
+    private final String BLIND_PIN = "****************";
+
     private final Pos_emu internalPosEmu;
     private final FXMLDocumentController internalIhmController;
     private final ParamConfigFile internalParamData;
@@ -93,13 +95,13 @@ class PosEmuEngine {
         
         nextState = stateToFix;
 
-        do {
+        do {            
             currentState = nextState;
+            ClearScreen(clearScreen);
 
             switch (currentState) {
                 case STATE_IDLE:
                     PosEmuUtils.DisplayLogInfo("STATE IDLE");
-                    ClearScreen(clearScreen);
                     if (Integer.parseInt(internalParamData.GetIdleType()) != 0) {
                         // A logo is displayed
                         DisplayImage(internalParamData.GetLogo());
@@ -115,10 +117,9 @@ class PosEmuEngine {
                     break;
 
                 case STATE_AMOUNT:
-                    PosEmuUtils.DisplayLogInfo("STATE AMOUNT");
-                    // 2 lines of 16 characters are displayed
-                    ClearScreen(clearScreen);
                     str = strAmountInteger + "," + strAmountDecimal + " EUR";
+                    PosEmuUtils.DisplayLogInfo("STATE AMOUNT = " + str);
+                    // 2 lines of 16 characters are displayed
                     DisplayLine(CenterMessage("DEBIT"), POS_COLOR_GREY, 0, 100, FONT_CHAR_SIZE);
                     DisplayLine(str, POS_COLOR_GREY, 0, 150, FONT_CHAR_SIZE);
                     break;
@@ -126,14 +127,12 @@ class PosEmuEngine {
                 case STATE_CARD_WAITING:
                     PosEmuUtils.DisplayLogInfo("STATE CARD WAITING");
                     str = strAmountInteger + "," + strAmountDecimal + " EUR";
-                    ClearScreen(clearScreen);
                     DisplayLine(CenterMessage("INSEREZ CARTE"), POS_COLOR_GREY, 0, 100, FONT_CHAR_SIZE);
                     DisplayLine(CenterMessage(str), POS_COLOR_RED, 0, 170, FONT_CHAR_SIZE);
                     break;
 
                 case STATE_TRANSACTION_ICC:
                     PosEmuUtils.DisplayLogInfo("STATE TRANSACTION");
-                    ClearScreen(clearScreen);
                     DisplayLine(CenterMessage("TRANSACTION"), POS_COLOR_GREY, 0, 100, FONT_CHAR_SIZE);
                     DisplayLine(CenterMessage("CARTE"), POS_COLOR_GREY, 0, 150, FONT_CHAR_SIZE);
                     DisplayLine(CenterMessage("EN COURS"), POS_COLOR_GREY, 0, 170, FONT_CHAR_SIZE);
@@ -173,7 +172,6 @@ class PosEmuEngine {
 
                 case STATE_TRANSACTION_MAGSTRIPE:
                     PosEmuUtils.DisplayLogInfo("STATE TRANSACTION");
-                    ClearScreen(clearScreen);
                     DisplayLine(CenterMessage("TRANSACTION"), POS_COLOR_GREY, 0, 100, FONT_CHAR_SIZE);
                     DisplayLine(CenterMessage("PISTE"), POS_COLOR_GREY, 0, 150, FONT_CHAR_SIZE);
                     DisplayLine(CenterMessage("EN COURS"), POS_COLOR_GREY, 0, 170, FONT_CHAR_SIZE);
@@ -181,21 +179,55 @@ class PosEmuEngine {
 
                 case STATE_TRANSACTION_CLESS:
                     PosEmuUtils.DisplayLogInfo("STATE TRANSACTION");
-                    ClearScreen(clearScreen);
                     DisplayLine(CenterMessage("TRANSACTION"), POS_COLOR_GREY, 0, 100, FONT_CHAR_SIZE);
                     DisplayLine(CenterMessage("CONTACTLESS"), POS_COLOR_GREY, 0, 150, FONT_CHAR_SIZE);
                     DisplayLine(CenterMessage("EN COURS"), POS_COLOR_GREY, 0, 170, FONT_CHAR_SIZE);
                     break;
                     
                 case STATE_PIN_ENTRY:
-                    PosEmuUtils.DisplayLogInfo("STATE PIN ENTRY");
-                    ClearScreen(clearScreen);
+                    PosEmuUtils.DisplayLogInfo("STATE PIN ENTRY: PIN=" + PinCode);
                     str = strAmountInteger + "," + strAmountDecimal + " EUR";
                     DisplayLine(CenterMessage("DEBIT"), POS_COLOR_GREY, 0, 100, FONT_CHAR_SIZE);
                     DisplayLine(str, POS_COLOR_GREY, 0, 130, FONT_CHAR_SIZE);
                     DisplayLine(CenterMessage("SAISIR CODE:"), POS_COLOR_GREY, 0, 160, FONT_CHAR_SIZE);
+                    
+                    // Display PIN code (with stars *)
+                    String PinCodeBlind = BLIND_PIN.substring(0,PinCode.length());
+                    DisplayLine(CenterMessage(PinCodeBlind), POS_COLOR_GREY, 0, 190, FONT_CHAR_SIZE);
+                    
                     break;
-                            
+
+                case STATE_PIN_RESULT_OK:
+                    PosEmuUtils.DisplayLogInfo("STATE PIN RESULT OK");
+                    DisplayLine(CenterMessage("CODE BON"), POS_COLOR_GREY, 0, 100, FONT_CHAR_SIZE);
+                    break;
+
+                case STATE_PIN_RESULT_NOK:
+                    PosEmuUtils.DisplayLogInfo("STATE PIN RESULT KO");
+                    DisplayLine(CenterMessage("CODE FAUX"), POS_COLOR_GREY, 0, 100, FONT_CHAR_SIZE);
+                    break;
+
+                case STATE_TRANSACTION_RESULT_OK:
+                    PosEmuUtils.DisplayLogInfo("STATE TRX RESULT OK");
+                    DisplayLine(CenterMessage("PAIEMENT ACCEPTE"), POS_COLOR_GREY, 0, 100, FONT_CHAR_SIZE);
+                    break;
+
+                case STATE_TRANSACTION_RESULT_NOK:
+                    PosEmuUtils.DisplayLogInfo("STATE TRX RESULT KO");
+                    DisplayLine(CenterMessage("PAIEMENT REFUSE"), POS_COLOR_GREY, 0, 100, FONT_CHAR_SIZE);
+                    break;
+
+                case STATE_PRINT_CUSTOMER_RECEIPT:
+                    PosEmuUtils.DisplayLogInfo("STATE PRINT CUSTOMER RECEIPT");
+                    DisplayLine(CenterMessage("IMPRESSION EN COURS"), POS_COLOR_GREY, 0, 100, FONT_CHAR_SIZE);
+                    DisplayLine(CenterMessage("VALIDEZ"), POS_COLOR_GREY, 0, 150, FONT_CHAR_SIZE);
+                    break;
+
+                case STATE_PRINT_MERCHANT_RECEIPT:
+                    PosEmuUtils.DisplayLogInfo("STATE PRINT MERCHANT RECEIPT");
+                    DisplayLine(CenterMessage("IMPRESSION EN COURS"), POS_COLOR_GREY, 0, 100, FONT_CHAR_SIZE);
+                    break;
+
                 default:
                     PosEmuUtils.DisplayLogInfo("STATE DEFAULT");
                     break;
@@ -259,9 +291,9 @@ class PosEmuEngine {
                 } else if (receivedEvent == PosEnums.PosEvent.ICC_INSERTED) {
                     StartEngine(PosEnums.State.STATE_TRANSACTION_ICC, true, receivedEvent);
                 } else if (receivedEvent == PosEnums.PosEvent.CARD_SWIPED) {
-                    StartEngine(PosEnums.State.STATE_TRANSACTION_MAGSTRIPE, true, receivedEvent);                    
+                    StartEngine(PosEnums.State.STATE_TRANSACTION_MAGSTRIPE, true, receivedEvent);
                 } else if (receivedEvent == PosEnums.PosEvent.CLESS_CARD) {
-                    StartEngine(PosEnums.State.STATE_TRANSACTION_CLESS, true, receivedEvent);                    
+                    StartEngine(PosEnums.State.STATE_TRANSACTION_CLESS, true, receivedEvent);
                 }
 
                 break;
@@ -283,11 +315,68 @@ class PosEmuEngine {
             case STATE_PIN_ENTRY:
                 if (receivedEvent == PosEnums.PosEvent.KEY_PRESSED) {
                     if (keyValue == PosEnums.PosKeyCode.NUM_CANCEL) {
+                        // Cancel key pressed
                         StartEngine(PosEnums.State.STATE_IDLE, true);
+                    } else if (IsNumeric(keyValue)) {
+                        // Numeric key pressed
+                        PinCode += GetCharFromKeyValue(keyValue);
+                        StartEngine(PosEnums.State.STATE_PIN_ENTRY, true);
+                    } else if (keyValue == PosEnums.PosKeyCode.NUM_CORR) {
+                        // Numeric key pressed
+                        int position = PinCode.length() - 1;
+                        if (position < 0) position = 0;
+                        PinCode = PinCode.substring(0, position);
+                        StartEngine(PosEnums.State.STATE_PIN_ENTRY, true);
+                    } else if (keyValue == PosEnums.PosKeyCode.NUM_VAL) {
+                        // PIN is Entered, Check the PIN code
+                        retIcc = m_icc.IccPinVerify(PinCode);
+                        if (C_err.Icc.ERR_ICC_OK == retIcc) {
+                            C_logger_stdout.LogInfo(module_name, "PIN OK");
+                            StartEngine(PosEnums.State.STATE_PIN_RESULT_OK, true);
+                        } else {
+                            C_logger_stdout.LogError(module_name, "WRONG PIN");
+                            StartEngine(PosEnums.State.STATE_PIN_RESULT_NOK, true);
+                        }
                     }
                 }
                 break;
                 
+            case STATE_PIN_RESULT_OK:
+                if (receivedEvent == PosEnums.PosEvent.KEY_PRESSED) {
+                    if (strAmountDecimal.equals("00") == true) {
+                        StartEngine(PosEnums.State.STATE_TRANSACTION_RESULT_OK, true);
+                    } else {
+                        StartEngine(PosEnums.State.STATE_TRANSACTION_RESULT_NOK, true);
+                    }
+                }
+                break;
+
+            case STATE_PIN_RESULT_NOK:
+                if (receivedEvent == PosEnums.PosEvent.KEY_PRESSED) {
+                    PinCode = "";
+                    StartEngine(PosEnums.State.STATE_PIN_ENTRY, true);
+                }
+                break;
+
+            case STATE_TRANSACTION_RESULT_OK:
+            case STATE_TRANSACTION_RESULT_NOK:
+                if (receivedEvent == PosEnums.PosEvent.KEY_PRESSED) {
+                    StartEngine(PosEnums.State.STATE_PRINT_CUSTOMER_RECEIPT, true);
+                }
+                break;
+
+            case STATE_PRINT_CUSTOMER_RECEIPT:
+                if (receivedEvent == PosEnums.PosEvent.KEY_PRESSED) {
+                    StartEngine(PosEnums.State.STATE_PRINT_MERCHANT_RECEIPT, true);
+                }
+                break;
+
+            case STATE_PRINT_MERCHANT_RECEIPT:
+                if (receivedEvent == PosEnums.PosEvent.KEY_PRESSED) {
+                    StartEngine(PosEnums.State.STATE_IDLE, true);
+                }
+                break;
+                        
             default:
                 break;
         }
@@ -376,7 +465,19 @@ class PosEmuEngine {
     private void AddDigitToAmount(PosEnums.PosKeyCode keyValue) {
         char val;
 
-        switch (keyValue) {
+        val = GetCharFromKeyValue(keyValue);
+
+        if (pressedNumKey < AMOUNT_MAX_DIGIT) {
+            strAmount = strAmount + val;
+            pressedNumKey++;
+            UpdateAmountDisplay(0);
+        }
+    }
+
+    private char GetCharFromKeyValue(PosEnums.PosKeyCode keyval) {
+        char val;
+        
+        switch (keyval) {
             case NUM_0:
                 val = '0';
                 break;
@@ -411,14 +512,10 @@ class PosEmuEngine {
                 val = '0';
                 break;
         }
-
-        if (pressedNumKey < AMOUNT_MAX_DIGIT) {
-            strAmount = strAmount + val;
-            pressedNumKey++;
-            UpdateAmountDisplay(0);
-        }
+        
+        return val;
     }
-
+    
     private void UpdateAmountDisplay(int direction) {
         // Update display of amount
         StringBuilder bAmountDecimal = new StringBuilder(strAmountDecimal);
