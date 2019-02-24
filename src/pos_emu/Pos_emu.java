@@ -84,12 +84,10 @@ public class Pos_emu extends Application {
         
         // Read Configuration file 
         config_param_data = ReadJsonConfigFile();
-        
+
+        // Initialize ICC Reader Module
+        InitializeReaderModule();
         // Create instante of Engine
-        retIcc = initializePosEngine(C_icc.SmartCardManagementType.SMARTCARD_PCSC);
-        if (retIcc != C_err.Icc.ERR_ICC_OK) {
-            initializePosEngine(C_icc.SmartCardManagementType.SMARTCARD_VIRTUAL);
-        }
         internalPosEmuEngine = new PosEmuEngine(this, ihmController, config_param_data, internal_m_icc);
 
         // Set operations when window is closed
@@ -113,7 +111,29 @@ public class Pos_emu extends Application {
         stage.show();
     }
 
-    public C_err.Icc initializePosEngine(C_icc.SmartCardManagementType smartCardType) {
+    /**
+     * Initialize the Reader module according to the checkbox
+     * 
+     * @return Icc class to be used
+     */
+    public C_icc InitializeReaderModule() {
+        if (ihmController.iccCardTypeChoiceBox.getValue() == "VIRTUAL") {
+            PosEmuUtils.DisplayLogInfo("Virtual Reader Selected");
+            initializeIccModule(C_icc.SmartCardManagementType.SMARTCARD_VIRTUAL);
+        } else {
+            PosEmuUtils.DisplayLogInfo("PC/SC Reader Selected");
+            retIcc = initializeIccModule(C_icc.SmartCardManagementType.SMARTCARD_PCSC);
+            if (retIcc != C_err.Icc.ERR_ICC_OK) {
+                internalPosEmuEngine.DisplayOutputLabel("ERROR ACCESSING PCSC");
+                internalPosEmuEngine.SetCheckBox(0);
+                PosEmuUtils.DisplayLogError("Error accessing PCSC reader");
+                initializeIccModule(C_icc.SmartCardManagementType.SMARTCARD_VIRTUAL);
+            }
+        }
+        return internal_m_icc;
+    }    
+    
+    private C_err.Icc initializeIccModule(C_icc.SmartCardManagementType smartCardType) {
         // According to the parameter, use PC/SC or virtual Smart-Card
         if (smartCardType == C_icc.SmartCardManagementType.SMARTCARD_PCSC) {
             // Create ICC smart card component based on PCSC
@@ -230,12 +250,14 @@ public class Pos_emu extends Application {
                             case TIMER_EVENT:
                                 internalPosEmuEngine.EventReceived(theEvent, PosEnums.PosKeyCode.NO_KEY);
                                 break;
+                            case CHECKBOX_EVENT:
+                                internalPosEmuEngine.EventReceived(theEvent, PosEnums.PosKeyCode.NO_KEY);
+                                break;
                             default:
                                 break;
                         }
                         // Update Smart card status
                         bSmartCardPresent = internal_m_icc.IccIsCardPresent();
-                        theEvent = PosEnums.PosEvent.NO_EVENT;
                     }
                     // Wait 10 ms, not to use all CPU resource
                     Thread.sleep(10);

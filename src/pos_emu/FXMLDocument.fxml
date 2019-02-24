@@ -71,5 +71,6 @@
       </graphic>
     </Button>
     <Pane fx:id="PosScreen" layoutX="57.0" layoutY="150.0" prefHeight="304.0" prefWidth="210.0" style="-fx-background-color: black" />
+      <ChoiceBox fx:id="iccCardTypeChoiceBox" layoutX="326.0" layoutY="283.0" prefHeight="39.0" prefWidth="109.0" />
   </children>
 </AnchorPane>

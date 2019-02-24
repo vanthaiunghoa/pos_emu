@@ -14,8 +14,6 @@ import javafx.scene.image.ImageView;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
 import c_icc.C_icc;
-import c_icc.C_icc_pcsc;
-import c_icc.C_icc_virtual;
 import c_common.C_logger_stdout;
 import c_common.C_err;
 
@@ -39,7 +37,7 @@ class PosEmuEngine {
     private final Pos_emu internalPosEmu;
     private final FXMLDocumentController internalIhmController;
     private final ParamConfigFile internalParamData;
-    private final C_icc m_icc;
+    private C_icc m_icc;
     
     private PosEnums.State currentState = PosEnums.State.STATE_NOT_STARTED;
     private PosEnums.State nextState;
@@ -268,6 +266,8 @@ class PosEmuEngine {
                     } else if (keyValue == PosEnums.PosKeyCode.NUM_MENU) {
                         StartEngine(PosEnums.State.STATE_MENU_SCREEN, true);
                     }
+                } else if (receivedEvent == PosEnums.PosEvent.CHECKBOX_EVENT) {
+                    m_icc = internalPosEmu.InitializeReaderModule();
                 }
                 break;
 
@@ -502,6 +502,20 @@ class PosEmuEngine {
         // Set label values
         Label posScreenLabel = new Label("");
         DisplayLine(posScreenLabel, msg, color, posX, posY, size);
+    }
+
+    public void DisplayOutputLabel(String msg) {
+        // Set POS screen
+        Platform.runLater(() -> {
+            internalIhmController.OutputLabel.setText(msg);
+        });
+    }
+
+    public void SetCheckBox(int selected) {
+        // Set POS screen
+        Platform.runLater(() -> {
+            internalIhmController.iccCardTypeChoiceBox.getSelectionModel().select(selected);
+        });
     }
 
     private boolean IsNumeric(PosEnums.PosKeyCode keyValue) {

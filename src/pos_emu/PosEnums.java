@@ -58,7 +58,8 @@ class PosEnums
         ICC_INSERTED,
         CARD_SWIPED,
         CLESS_CARD,
-        TIMER_EVENT
+        TIMER_EVENT,
+        CHECKBOX_EVENT
     }
 
     public enum PosTransactionTechno

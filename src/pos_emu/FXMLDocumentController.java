@@ -8,10 +8,16 @@ package pos_emu;
 import java.net.URL;
 import java.util.ResourceBundle;
 import javafx.application.Platform;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
+import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.control.Button;
+import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.Label;
+import javafx.scene.control.Tooltip;
 import javafx.scene.layout.Pane;
 
 /**
@@ -19,10 +25,18 @@ import javafx.scene.layout.Pane;
  * @author balacahan
  */
 public class FXMLDocumentController implements Initializable {
-   
+
+    private final String MSG_DISPLAY_VIRTUAL = "VIRTUAL";
+    private final String MSG_DISPLAY_PCSC = "PC/SC";
+    
     @FXML
     public Label OutputLabel;
-    public Pane PosScreen;    
+    public Pane PosScreen;
+    public ChoiceBox iccCardTypeChoiceBox;
+    public Button ButtonMagstripe;
+    public Button ButtonCless;
+    public Button ButtonSmartCard;
+
     private PosEnums.PosEvent eventAvailable = PosEnums.PosEvent.NO_EVENT;
     private PosEnums.PosKeyCode eventKeyCode = PosEnums.PosKeyCode.NO_KEY;
     private long timerEndTime;
@@ -126,8 +140,10 @@ public class FXMLDocumentController implements Initializable {
     }    
     @FXML
     private void ButtonSmartCardEvent(ActionEvent event) {
-        OutputLabel.setText("SMART CARD INSERTED/REMOVED");
-        eventAvailable = PosEnums.PosEvent.ICC_INSERTED;
+        if (iccCardTypeChoiceBox.getValue() == MSG_DISPLAY_VIRTUAL) {
+            OutputLabel.setText("SMART CARD INSERTED/REMOVED");
+            eventAvailable = PosEnums.PosEvent.ICC_INSERTED;
+        }
     }    
     @FXML
     private void ButtonClessEvent(ActionEvent event) {
@@ -183,8 +199,27 @@ public class FXMLDocumentController implements Initializable {
         
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        // TODO
+        // output display
         OutputLabel.setText("DESK/5000 Emulator");
+        
+        // Buttons tooltype
+        ButtonMagstripe.setTooltip(new Tooltip("Swipe a magstripe"));
+        ButtonSmartCard.setTooltip(new Tooltip("Insert or Remove Smart Card"));
+        ButtonCless.setTooltip(new Tooltip("Present a contactless card"));
+        
+        // Checkbox for Reader type
+        iccCardTypeChoiceBox.setTooltip(new Tooltip("Select ICC Reader type"));
+        iccCardTypeChoiceBox.setItems(FXCollections.observableArrayList(MSG_DISPLAY_VIRTUAL, MSG_DISPLAY_PCSC));
+        iccCardTypeChoiceBox.getSelectionModel().select(0);
+
+        // add a listener 
+        iccCardTypeChoiceBox.getSelectionModel().selectedIndexProperty().addListener(new ChangeListener<Number>() { 
+            // if the item of the list is changed 
+            @Override
+            public void changed(ObservableValue ov, Number value, Number new_value) 
+            { 
+                eventAvailable = PosEnums.PosEvent.CHECKBOX_EVENT;
+            } 
+        });
     }    
-    
 }
