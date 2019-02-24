@@ -27,6 +27,7 @@ public class FXMLDocumentController implements Initializable {
     private PosEnums.PosKeyCode eventKeyCode = PosEnums.PosKeyCode.NO_KEY;
     private long timerEndTime;
     private boolean timerRun = false;
+    private boolean bCardPresent = false;
     
     @FXML
     private void Button0Event(ActionEvent event) {
@@ -126,7 +127,13 @@ public class FXMLDocumentController implements Initializable {
     }    
     @FXML
     private void ButtonSmartCardEvent(ActionEvent event) {
-        OutputLabel.setText("SMART CARD INSERTED");
+        if (bCardPresent == false) {
+            OutputLabel.setText("SMART CARD INSERTED");
+            bCardPresent = true;
+        } else {
+            OutputLabel.setText("SMART CARD REMOVED");
+            bCardPresent = false;
+        }
         eventAvailable = PosEnums.PosEvent.ICC_INSERTED;
     }    
     @FXML
@@ -154,6 +161,10 @@ public class FXMLDocumentController implements Initializable {
                 PosEmuUtils.DisplayLogInfo("Timer Event Occured");
             }
         } 
+    }
+
+    public boolean CheckCardPresence() {
+        return bCardPresent;
     }
     
     public void StartTimerEvent(long myTimerValue) {

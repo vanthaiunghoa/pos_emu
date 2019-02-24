@@ -6,6 +6,8 @@
  */
 package pos_emu;
 
+import c_common.C_err;
+import c_icc.C_icc;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.stage.Stage;
@@ -76,7 +78,10 @@ public class Pos_emu extends Application {
         // Create instante of Engine
         internalPosEmuEngine = new PosEmuEngine(this, ihmController, config_param_data);
         // And initialize it
-        internalPosEmuEngine.initializePosEngine();
+        if (internalPosEmuEngine.initializePosEngine(C_icc.SmartCardManagementType.SMARTCARD_PCSC) != C_err.Icc.ERR_ICC_OK) {
+            // Error occured with PCSC, open again with Virtual card
+            internalPosEmuEngine.initializePosEngine(C_icc.SmartCardManagementType.SMARTCARD_VIRTUAL);
+        }
 
         // Set operations when window is closed
         stage.setOnCloseRequest((WindowEvent we) -> {

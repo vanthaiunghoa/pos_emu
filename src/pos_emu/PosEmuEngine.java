@@ -51,6 +51,8 @@ class PosEmuEngine {
     private String module_name;
     private String PinCode;
 
+    private PosEnums.PosTransactionTechno typeCurrentTrxTechno;
+    
     /*
     * Constructor
      */
@@ -61,12 +63,9 @@ class PosEmuEngine {
         internalPosEmu = posEmuController;
     }
 
-    public void initializePosEngine() {
-        // Icc type
-        C_icc.SmartCardManagementType smartCardType = C_icc.SmartCardManagementType.SMARTCARD_PCSC;
-
+    public C_err.Icc initializePosEngine(C_icc.SmartCardManagementType smartCardType) {
         // According to the parameter, use PC/SC or virtual Smart-Card
-        if (smartCardType == C_icc.SmartCardManagementType.SMARTCARD_VIRTUAL) {
+        if (smartCardType == C_icc.SmartCardManagementType.SMARTCARD_PCSC) {
             // Create ICC smart card component based on PCSC
             m_icc = new C_icc_pcsc("m_icc");
         } else {
@@ -87,6 +86,8 @@ class PosEmuEngine {
         } else {
             C_logger_stdout.LogError(module_name, "Problem connecting to reader");
         }
+
+        return retIcc;
     }
 
     /*
@@ -98,8 +99,6 @@ class PosEmuEngine {
         String str;
 
         nextState = stateToFix;
-
-//        do {            
         currentState = nextState;
         ClearScreen(clearScreen);
 
@@ -118,6 +117,10 @@ class PosEmuEngine {
 
             case STATE_MENU_SCREEN:
                 PosEmuUtils.DisplayLogInfo("STATE MENU SCREEN");
+                DisplayLine(CenterMessage("APPLI 1"), POS_COLOR_GREY, 0, 100, FONT_CHAR_SIZE);
+                DisplayLine(CenterMessage("APPLI 2"), POS_COLOR_GREY, 0, 130, FONT_CHAR_SIZE);
+                DisplayLine(CenterMessage("APPLI 3"), POS_COLOR_GREY, 0, 160, FONT_CHAR_SIZE);
+                DisplayLine(CenterMessage("APPLI 4"), POS_COLOR_GREY, 0, 190, FONT_CHAR_SIZE);
                 break;
 
             case STATE_AMOUNT:
@@ -141,6 +144,8 @@ class PosEmuEngine {
                 DisplayLine(CenterMessage("CARTE"), POS_COLOR_GREY, 0, 150, FONT_CHAR_SIZE);
                 DisplayLine(CenterMessage("EN COURS"), POS_COLOR_GREY, 0, 170, FONT_CHAR_SIZE);
 
+                typeCurrentTrxTechno = PosEnums.PosTransactionTechno.TRX_ICC;
+                
                 // read the card
                 retIcc = m_icc.IccConnectSmartCard();
                 if (C_err.Icc.ERR_ICC_OK == retIcc) {
@@ -161,8 +166,6 @@ class PosEmuEngine {
                             C_logger_stdout.LogInfo(module_name, "CARD PAN is " + response);
                         }
 
-                        // Disconnect
-                        m_icc.IccDisconnect();
                     }
                 } else {
                     if (C_err.Icc.ERR_ICC_NO_CARD == retIcc) {
@@ -180,6 +183,7 @@ class PosEmuEngine {
                 DisplayLine(CenterMessage("TRANSACTION"), POS_COLOR_GREY, 0, 100, FONT_CHAR_SIZE);
                 DisplayLine(CenterMessage("PISTE"), POS_COLOR_GREY, 0, 150, FONT_CHAR_SIZE);
                 DisplayLine(CenterMessage("EN COURS"), POS_COLOR_GREY, 0, 170, FONT_CHAR_SIZE);
+                typeCurrentTrxTechno = PosEnums.PosTransactionTechno.TRX_MAG;
                 // Start a timer
                 internalIhmController.StartTimerEvent(TIMER_1_SECONDS);
                 break;
@@ -189,6 +193,7 @@ class PosEmuEngine {
                 DisplayLine(CenterMessage("TRANSACTION"), POS_COLOR_GREY, 0, 100, FONT_CHAR_SIZE);
                 DisplayLine(CenterMessage("CONTACTLESS"), POS_COLOR_GREY, 0, 150, FONT_CHAR_SIZE);
                 DisplayLine(CenterMessage("EN COURS"), POS_COLOR_GREY, 0, 170, FONT_CHAR_SIZE);
+                typeCurrentTrxTechno = PosEnums.PosTransactionTechno.TRX_CLESS;
                 // Start a timer
                 internalIhmController.StartTimerEvent(TIMER_1_SECONDS);
                 break;
@@ -203,7 +208,7 @@ class PosEmuEngine {
                 // Display PIN code (with stars *)
                 String PinCodeBlind = BLIND_PIN.substring(0, PinCode.length());
                 DisplayLine(CenterMessage(PinCodeBlind), POS_COLOR_GREY, 0, 190, FONT_CHAR_SIZE);
-                
+
                 break;
 
             case STATE_PIN_RESULT_OK:
@@ -221,7 +226,7 @@ class PosEmuEngine {
                 DisplayLine(CenterMessage("AUTORISATION"), POS_COLOR_GREY, 0, 100, FONT_CHAR_SIZE);
                 DisplayLine(CenterMessage("EN COURS"), POS_COLOR_GREY, 0, 150, FONT_CHAR_SIZE);
                 break;
-                        
+
             case STATE_TRANSACTION_RESULT_OK:
                 PosEmuUtils.DisplayLogInfo("STATE TRX RESULT OK");
                 DisplayLine(CenterMessage("PAIEMENT ACCEPTE"), POS_COLOR_GREY, 0, 100, FONT_CHAR_SIZE);
@@ -243,12 +248,20 @@ class PosEmuEngine {
                 DisplayLine(CenterMessage("IMPRESSION EN COURS"), POS_COLOR_GREY, 0, 100, FONT_CHAR_SIZE);
                 break;
 
+            case STATE_CARD_REMOVED:
+                PosEmuUtils.DisplayLogInfo("STATE CARTE REMOVED");
+                DisplayLine(CenterMessage("CARTE ARRACHEE"), POS_COLOR_GREY, 0, 100, FONT_CHAR_SIZE);
+                break;
+
+            case STATE_WAIT_CARD_REMOVE:
+                PosEmuUtils.DisplayLogInfo("STATE WAIT CARD REMOVE");
+                DisplayLine(CenterMessage("RETIREZ CARTE"), POS_COLOR_GREY, 0, 100, FONT_CHAR_SIZE);
+                break;
+
             default:
                 PosEmuUtils.DisplayLogInfo("STATE DEFAULT");
                 break;
         }
-
-        //       } while (currentState != nextState);
     }
 
     /*
@@ -267,6 +280,8 @@ class PosEmuEngine {
                         ClearAmount();
                         AddDigitToAmount(keyValue);
                         StartEngine(PosEnums.State.STATE_AMOUNT, true);
+                    } else if (keyValue == PosEnums.PosKeyCode.NUM_MENU) {
+                        StartEngine(PosEnums.State.STATE_MENU_SCREEN, true);                    
                     }
                 }
                 break;
@@ -285,8 +300,13 @@ class PosEmuEngine {
                         RemoveDigitFromAmount();
                         StartEngine(PosEnums.State.STATE_AMOUNT, true);
                     }
-                    if (keyValue == PosEnums.PosKeyCode.NUM_VAL) {
-                        StartEngine(PosEnums.State.STATE_CARD_WAITING, true);
+                    if (keyValue == PosEnums.PosKeyCode.NUM_VAL) {                       
+                        if (internalIhmController.CheckCardPresence() == true) {
+                            // Card already present
+                            StartEngine(PosEnums.State.STATE_TRANSACTION_ICC, true, receivedEvent);
+                        } else {
+                            StartEngine(PosEnums.State.STATE_CARD_WAITING, true);
+                        }
                     }
                     if (keyValue == PosEnums.PosKeyCode.NUM_CANCEL) {
                         StartEngine(PosEnums.State.STATE_IDLE, true);
@@ -310,7 +330,6 @@ class PosEmuEngine {
                 } else if (receivedEvent == PosEnums.PosEvent.CLESS_CARD) {
                     StartEngine(PosEnums.State.STATE_TRANSACTION_CLESS, true, receivedEvent);
                 }
-
                 break;
 
             case STATE_TRANSACTION_ICC:
@@ -333,7 +352,7 @@ class PosEmuEngine {
                 // Start a timer
                 internalIhmController.StartTimerEvent(TIMER_2_SECONDS);
                 break;
-                
+
             case STATE_TRANSACTION_CLESS:
                 StartEngine(PosEnums.State.STATE_AUTORISATION, true);
                 // Start a timer
@@ -341,44 +360,63 @@ class PosEmuEngine {
                 break;
 
             case STATE_PIN_ENTRY:
-                if (receivedEvent == PosEnums.PosEvent.KEY_PRESSED) {
-                    if (keyValue == PosEnums.PosKeyCode.NUM_CANCEL) {
-                        // Cancel key pressed
-                        StartEngine(PosEnums.State.STATE_IDLE, true);
-                    } else if (IsNumeric(keyValue)) {
-                        // Numeric key pressed
-                        PinCode += GetCharFromKeyValue(keyValue);
-                        StartEngine(PosEnums.State.STATE_PIN_ENTRY, true);
-                    } else if (keyValue == PosEnums.PosKeyCode.NUM_CORR) {
-                        // Numeric key pressed
-                        int position = PinCode.length() - 1;
-                        if (position < 0) {
-                            position = 0;
+
+                if (internalIhmController.CheckCardPresence() == false) {
+                    // Card removed
+                    StartEngine(PosEnums.State.STATE_CARD_REMOVED, true);
+
+                    // Start a timer
+                    internalIhmController.StartTimerEvent(TIMER_1_SECONDS);
+                } else {
+
+                    if (receivedEvent == PosEnums.PosEvent.KEY_PRESSED) {
+                        if (keyValue == PosEnums.PosKeyCode.NUM_CANCEL) {
+                            // Cancel key pressed
+                            StartEngine(PosEnums.State.STATE_IDLE, true);
+                        } else if (IsNumeric(keyValue)) {
+                            // Numeric key pressed
+                            PinCode += GetCharFromKeyValue(keyValue);
+                            StartEngine(PosEnums.State.STATE_PIN_ENTRY, true);
+                        } else if (keyValue == PosEnums.PosKeyCode.NUM_CORR) {
+                            // Numeric key pressed
+                            int position = PinCode.length() - 1;
+                            if (position < 0) {
+                                position = 0;
+                            }
+                            PinCode = PinCode.substring(0, position);
+                            StartEngine(PosEnums.State.STATE_PIN_ENTRY, true);
+                        } else if (keyValue == PosEnums.PosKeyCode.NUM_VAL) {
+                            // PIN is Entered, Check the PIN code
+                            retIcc = m_icc.IccPinVerify(PinCode);
+                            if (C_err.Icc.ERR_ICC_OK == retIcc) {
+                                C_logger_stdout.LogInfo(module_name, "PIN OK");
+                                StartEngine(PosEnums.State.STATE_PIN_RESULT_OK, true);
+                            } else {
+                                C_logger_stdout.LogError(module_name, "WRONG PIN");
+                                StartEngine(PosEnums.State.STATE_PIN_RESULT_NOK, true);
+                            }
+
+                            // Start a timer
+                            internalIhmController.StartTimerEvent(TIMER_1_SECONDS);
                         }
-                        PinCode = PinCode.substring(0, position);
-                        StartEngine(PosEnums.State.STATE_PIN_ENTRY, true);
-                    } else if (keyValue == PosEnums.PosKeyCode.NUM_VAL) {
-                        // PIN is Entered, Check the PIN code
-                        retIcc = m_icc.IccPinVerify(PinCode);
-                        if (C_err.Icc.ERR_ICC_OK == retIcc) {
-                            C_logger_stdout.LogInfo(module_name, "PIN OK");
-                            StartEngine(PosEnums.State.STATE_PIN_RESULT_OK, true);
-                        } else {
-                            C_logger_stdout.LogError(module_name, "WRONG PIN");
-                            StartEngine(PosEnums.State.STATE_PIN_RESULT_NOK, true);
-                        }
-                        // Start a timer
-                        internalIhmController.StartTimerEvent(TIMER_1_SECONDS);
                     }
-                }
+                }                        
                 break;
 
-            case STATE_PIN_RESULT_OK:
+        case STATE_CARD_REMOVED:
+            StartEngine(PosEnums.State.STATE_IDLE, true);
+            break;
+                
+        case STATE_PIN_RESULT_OK:
                 if (strAmountDecimal.equals("00") == true) {
                     StartEngine(PosEnums.State.STATE_TRANSACTION_RESULT_OK, true);
                 } else {
                     StartEngine(PosEnums.State.STATE_TRANSACTION_RESULT_NOK, true);
                 }
+
+                // Disconnect card                
+                m_icc.IccDisconnect();
+                
                 // Start a timer
                 internalIhmController.StartTimerEvent(TIMER_1_SECONDS);
                 break;
@@ -392,11 +430,25 @@ class PosEmuEngine {
 
             case STATE_TRANSACTION_RESULT_OK:
             case STATE_TRANSACTION_RESULT_NOK:
-                StartEngine(PosEnums.State.STATE_PRINT_CUSTOMER_RECEIPT, true);
-                // Start a timer
-                internalIhmController.StartTimerEvent(TIMER_1_SECONDS);
+                // First check card presence
+                if (PosEnums.PosTransactionTechno.TRX_ICC == typeCurrentTrxTechno) {
+                    // This is a smart card transaction, so ask for card removal
+                    StartEngine(PosEnums.State.STATE_WAIT_CARD_REMOVE, true);
+                } else {
+                    StartEngine(PosEnums.State.STATE_PRINT_CUSTOMER_RECEIPT, true);
+                    // Start a timer
+                    internalIhmController.StartTimerEvent(TIMER_1_SECONDS);
+                }
                 break;
 
+            case STATE_WAIT_CARD_REMOVE:
+                if (receivedEvent == PosEnums.PosEvent.ICC_INSERTED) {
+                    StartEngine(PosEnums.State.STATE_PRINT_CUSTOMER_RECEIPT, true);
+                    // Start a timer
+                    internalIhmController.StartTimerEvent(TIMER_1_SECONDS);
+                }
+                break;
+                
             case STATE_PRINT_CUSTOMER_RECEIPT:
                 if (receivedEvent == PosEnums.PosEvent.KEY_PRESSED) {
                     StartEngine(PosEnums.State.STATE_PRINT_MERCHANT_RECEIPT, true);
@@ -413,6 +465,8 @@ class PosEmuEngine {
                 break;
         }
     }
+
+    
 
     private String CenterMessage(String msg) {
         int spaceNb = (MAX_SCREEN_CHAR - msg.length()) / 2;

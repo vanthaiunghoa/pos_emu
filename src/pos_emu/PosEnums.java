@@ -44,7 +44,9 @@ class PosEnums
         STATE_TRANSACTION_RESULT_OK,
         STATE_TRANSACTION_RESULT_NOK,
         STATE_PRINT_CUSTOMER_RECEIPT,
-        STATE_PRINT_MERCHANT_RECEIPT
+        STATE_PRINT_MERCHANT_RECEIPT,
+        STATE_CARD_REMOVED,
+        STATE_WAIT_CARD_REMOVE
     }
     
     public enum PosEvent
@@ -58,5 +60,11 @@ class PosEnums
         CLESS_CARD,
         TIMER_EVENT
     }
-    
+
+    public enum PosTransactionTechno
+    {
+        TRX_ICC,
+        TRX_MAG,
+        TRX_CLESS
+    }
 }
