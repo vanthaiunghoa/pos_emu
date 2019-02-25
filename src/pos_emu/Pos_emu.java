@@ -37,7 +37,7 @@ public class Pos_emu extends Application {
     // Constant for port to listen
     public int TCP_IP_LISTENER_PORT = 8000;
     // Configuration file name
-    final String param_json_path = "src/pos_emu/config/param.json";
+    final String param_json_path = "src/pos_emu/config/param_pos_emu.json";
     // FXML Document and controller
     FXMLDocumentController ihmController;
     private CommandInterpreter internalCommandInterpreter;
