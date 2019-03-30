@@ -16,20 +16,26 @@ import javafx.scene.control.ListView;
  *
  * @author balacahan
  */
-public class FXML_LogWindowController implements Initializable {
+public class FXML_ReceiptWindowController implements Initializable {
     
     @FXML
-    public ListView LogListView;
+    public ListView ReceiptListView;
     
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        LogListView.setEditable(false);
+        ReceiptListView.setEditable(false);
     }
 
-    public void LogWindowAddMsg(String c) {
+    public void ReceiptWindowAddLine(String c) {
         Platform.runLater(() -> {
-            LogListView.getItems().add(LogListView.getItems().size(), c);
-            LogListView.scrollTo(c);
+            ReceiptListView.getItems().add(ReceiptListView.getItems().size(), c);
+            ReceiptListView.scrollTo(c);
+        });
+    }
+    
+    public void ReceiptWindowClear() {
+        Platform.runLater(() -> {
+            ReceiptListView.getItems().clear();
         });
     }
 }

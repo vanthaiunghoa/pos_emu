@@ -64,6 +64,7 @@ public class Pos_emu extends Application {
     // FXML Document and controller
     FXMLDocumentController ihmController;
     FXML_LogWindowController logWindowController;
+    FXML_ReceiptWindowController internalReceiptWindowController;
     private CommandInterpreter internalCommandInterpreter;
     private PosEmuEngine internalPosEmuEngine;
     private C_icc internal_m_icc;
@@ -74,6 +75,10 @@ public class Pos_emu extends Application {
     // For log window
     Stage log_stage;
     Scene log_scene;
+
+    // For receipt window
+    Stage receipt_stage;
+    Scene receipt_scene;
 
     // Parameters from configuration file
     private ParamConfigFile config_param_data;
@@ -94,6 +99,9 @@ public class Pos_emu extends Application {
 
         // Start the logger
         PosEmuUtils.DisplayLogInfo(logWindowController, "Starting Logging ...");
+
+        // Creation of the Stage (Window) for the receipts
+        CreateReceiptWindow();        
         
         // First display working directory
         PosEmuUtils.DisplayLogInfo(logWindowController, "Working Directory = " + System.getProperty("user.dir"));
@@ -124,7 +132,7 @@ public class Pos_emu extends Application {
         // Initialize ICC Reader Module
         InitializeReaderModule();
         // Create instante of Engine
-        internalPosEmuEngine = new PosEmuEngine(this, ihmController, config_param_data, internal_m_icc, logWindowController);
+        internalPosEmuEngine = new PosEmuEngine(this, ihmController, config_param_data, internal_m_icc, logWindowController, internalReceiptWindowController);
 
         // Set operations when window is closed
         stage.setOnCloseRequest((WindowEvent we) -> {
@@ -139,8 +147,8 @@ public class Pos_emu extends Application {
         StartPOSBoot();        
         
         // Start the IDLE Screen
-        internalPosEmuEngine.StartEngine(PosEnums.State.STATE_IDLE, true);
-        
+        internalPosEmuEngine.StartEngine(PosEnums.State.STATE_IDLE, true);               
+
         // Add the scene to the stage and launch the stage
         stage.setScene(scene);
         stage.setTitle("INGENICO POS EMULATOR");
@@ -185,7 +193,62 @@ public class Pos_emu extends Application {
 
         return stage_pos;
     }
-        
+
+    /**
+     * Create the window for the receipts (different stage)
+     * 
+     * @return position of the created stage
+     */
+    public pixel_position CreateReceiptWindow() {
+        pixel_position stage_pos = new pixel_position();
+        try {
+            receipt_stage = new Stage();
+            FXMLLoader fxmlLoader=new FXMLLoader(getClass().getResource("FXML_ReceiptWindow.fxml"));
+            Pane root = fxmlLoader.load();
+            receipt_scene = new Scene(root);
+            receipt_stage.setScene(receipt_scene);
+            receipt_stage.setTitle("Receipt Window");
+            receipt_stage.initStyle(StageStyle.DECORATED);
+
+            // Now we have access to getController() through the instance... don't forget the type cast
+            internalReceiptWindowController = (FXML_ReceiptWindowController)fxmlLoader.getController();
+
+            // Window not resizable
+            receipt_stage.setResizable(false);
+
+        } catch (IOException e) {
+            PosEmuUtils.DisplayLogError(logWindowController, "Error opening window Receipt FXML file !");
+        }
+
+        stage_pos.x = receipt_stage.getX();
+        stage_pos.y = receipt_stage.getY();
+
+        stage_pos.width = receipt_stage.getWidth();
+        stage_pos.height = receipt_stage.getHeight();
+
+        return stage_pos;
+    }
+
+    /**
+     * Display or hide the receipt window (stage)
+     * @param display =true to display the window, =false to hide it
+     */
+    public void DisplayReceiptWindow(boolean display) {
+        if (display == true) {
+            if (!receipt_stage.isShowing()) {
+                Platform.runLater(() -> {
+                    receipt_stage.show();
+                });
+                internalReceiptWindowController.ReceiptWindowClear();
+            }
+        } else {
+            if (receipt_stage.isShowing())
+                Platform.runLater(() -> {
+                    receipt_stage.hide();
+                });
+        }
+    }   
+    
     /**
      * Initialize the Reader module according to the checkbox
      * 

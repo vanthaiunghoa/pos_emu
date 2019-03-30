@@ -37,8 +37,10 @@ class PosEmuEngine {
     private final Pos_emu internalPosEmu;
     private final FXMLDocumentController internalIhmController;
     private final FXML_LogWindowController internalLogController;
+    private final FXML_ReceiptWindowController internalReceiptController;
     private final ParamConfigFile internalParamData;
     private C_icc m_icc;
+    private TransactionContext myTrxContext;
     
     private PosEnums.State currentState = PosEnums.State.STATE_NOT_STARTED;
     private PosEnums.State nextState;
@@ -57,13 +59,22 @@ class PosEmuEngine {
     /*
     * Constructor
      */
-    PosEmuEngine(Pos_emu posEmuController, FXMLDocumentController ihmController, ParamConfigFile theParamData, C_icc module_icc, FXML_LogWindowController logController) {
+    PosEmuEngine(
+            Pos_emu posEmuController, 
+            FXMLDocumentController ihmController, 
+            ParamConfigFile theParamData, 
+            C_icc module_icc, 
+            FXML_LogWindowController logController, 
+            FXML_ReceiptWindowController receiptController) {
+        
         // Set controller to IHM
         internalIhmController = ihmController;
         internalLogController = logController;
+        internalReceiptController = receiptController;
         internalParamData = theParamData;
         internalPosEmu = posEmuController;
         m_icc = module_icc;
+        myTrxContext = new TransactionContext();
     }
 
     /*
@@ -100,6 +111,7 @@ class PosEmuEngine {
                 break;
 
             case STATE_AMOUNT:
+                PrintReceiptClear();
                 str = strAmountInteger + "," + strAmountDecimal + " EUR";
                 PosEmuUtils.DisplayLogInfo(internalLogController, "STATE AMOUNT = " + str);
                 // 2 lines of 16 characters are displayed
@@ -110,6 +122,7 @@ class PosEmuEngine {
             case STATE_CARD_WAITING:
                 PosEmuUtils.DisplayLogInfo(internalLogController, "STATE CARD WAITING");
                 str = strAmountInteger + "," + strAmountDecimal + " EUR";
+                myTrxContext.SetAmount(str);
                 DisplayLine(CenterMessage("INSEREZ CARTE"), POS_COLOR_GREY, 0, 100, FONT_CHAR_SIZE);
                 DisplayLine(CenterMessage(str), POS_COLOR_RED, 0, 170, FONT_CHAR_SIZE);
                 break;
@@ -133,6 +146,7 @@ class PosEmuEngine {
                         C_logger_stdout.LogWarning(module_name, "No AID in common");
                     } else {
                         C_logger_stdout.LogInfo(module_name, "Selected AID is " + response);
+                        myTrxContext.SetAid(response);
 
                         // Perform card reading
                         response = m_icc.IccReadCard();
@@ -140,6 +154,7 @@ class PosEmuEngine {
                             C_logger_stdout.LogError(module_name, "Error reading card data");
                         } else {
                             C_logger_stdout.LogInfo(module_name, "CARD PAN is " + response);
+                            myTrxContext.SetPan(response);
                         }
 
                     }
@@ -206,22 +221,29 @@ class PosEmuEngine {
             case STATE_TRANSACTION_RESULT_OK:
                 PosEmuUtils.DisplayLogInfo(internalLogController, "STATE TRX RESULT OK");
                 DisplayLine(CenterMessage("PAIEMENT ACCEPTE"), POS_COLOR_GREY, 0, 100, FONT_CHAR_SIZE);
+                myTrxContext.SetTrxStatus(true);
                 break;
 
             case STATE_TRANSACTION_RESULT_NOK:
                 PosEmuUtils.DisplayLogInfo(internalLogController, "STATE TRX RESULT KO");
                 DisplayLine(CenterMessage("PAIEMENT REFUSE"), POS_COLOR_GREY, 0, 100, FONT_CHAR_SIZE);
+                myTrxContext.SetTrxStatus(false);
                 break;
 
             case STATE_PRINT_CUSTOMER_RECEIPT:
                 PosEmuUtils.DisplayLogInfo(internalLogController, "STATE PRINT CUSTOMER RECEIPT");
                 DisplayLine(CenterMessage("IMPRESSION EN COURS"), POS_COLOR_GREY, 0, 100, FONT_CHAR_SIZE);
                 DisplayLine(CenterMessage("VALIDEZ"), POS_COLOR_GREY, 0, 150, FONT_CHAR_SIZE);
+                DisplayReceiptWindow(true);
+                PrintReceipt(PosEnums.PosReceiptType.RECEIPT_CUSTOMER);
+                PrintReceipt(PosEnums.PosReceiptType.RECEIPT_LINEFEED);
                 break;
 
             case STATE_PRINT_MERCHANT_RECEIPT:
                 PosEmuUtils.DisplayLogInfo(internalLogController, "STATE PRINT MERCHANT RECEIPT");
                 DisplayLine(CenterMessage("IMPRESSION EN COURS"), POS_COLOR_GREY, 0, 100, FONT_CHAR_SIZE);
+                PrintReceipt(PosEnums.PosReceiptType.RECEIPT_MERCHANT);
+                PrintReceipt(PosEnums.PosReceiptType.RECEIPT_LINEFEED);
                 break;
 
             case STATE_CARD_REMOVED:
@@ -653,4 +675,43 @@ class PosEmuEngine {
             StartEngine(currentState, false);
         }
     }
+
+    private void DisplayReceiptWindow(boolean enable) {
+        internalPosEmu.DisplayReceiptWindow(enable);
+    }
+    
+    private void PrintReceiptClear() {
+        DisplayReceiptWindow(false);
+    }
+    
+    private void PrintReceipt(PosEnums.PosReceiptType typeReceipt) {
+        if (typeReceipt == PosEnums.PosReceiptType.RECEIPT_LINEFEED) {
+            internalReceiptController.ReceiptWindowAddLine("");            
+        } else {
+            internalReceiptController.ReceiptWindowAddLine("CARTE BANCAIRE");
+            internalReceiptController.ReceiptWindowAddLine(myTrxContext.GetAid());
+            internalReceiptController.ReceiptWindowAddLine("CB");
+            internalReceiptController.ReceiptWindowAddLine("LE 30/03/2019 A 15:30:23");
+            internalReceiptController.ReceiptWindowAddLine("GL MONTPARNASSE");
+            internalReceiptController.ReceiptWindowAddLine("75PARIS2500676");
+            internalReceiptController.ReceiptWindowAddLine("30002");
+            internalReceiptController.ReceiptWindowAddLine("2500676");
+            internalReceiptController.ReceiptWindowAddLine("95750393100413");
+            internalReceiptController.ReceiptWindowAddLine(myTrxContext.GetPan());
+            internalReceiptController.ReceiptWindowAddLine("4c5f567fdc4c455c");
+            internalReceiptController.ReceiptWindowAddLine("394 001 394024 001480");
+            internalReceiptController.ReceiptWindowAddLine("C @");
+            internalReceiptController.ReceiptWindowAddLine("MONTANT");
+            internalReceiptController.ReceiptWindowAddLine(myTrxContext.GetAmount());
+            internalReceiptController.ReceiptWindowAddLine("DEBIT");
+            if (myTrxContext.GetTrxStatus() == false)
+                internalReceiptController.ReceiptWindowAddLine("-- ABANDON --");
+            if (typeReceipt == PosEnums.PosReceiptType.RECEIPT_CUSTOMER)
+                internalReceiptController.ReceiptWindowAddLine("TICKET CLIENT");
+            else
+                internalReceiptController.ReceiptWindowAddLine("TICKET COMMERCANT");
+            internalReceiptController.ReceiptWindowAddLine("A CONSERVER");
+        }
+    }
+
 }

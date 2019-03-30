@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import java.lang.*?>
+<?import javafx.scene.layout.*?>
+
+<AnchorPane fx:id="ReceiptAnchorPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="514.0" prefWidth="291.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="pos_emu.FXML_ReceiptWindowController">
+   <children>
+      <ListView fx:id="ReceiptListView" layoutX="14.0" layoutY="14.0" prefHeight="483.0" prefWidth="262.0" />
+   </children>
+</AnchorPane>

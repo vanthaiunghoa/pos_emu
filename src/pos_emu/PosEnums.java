@@ -68,4 +68,14 @@ class PosEnums
         TRX_MAG,
         TRX_CLESS
     }
+
+    public enum PosReceiptType
+    {
+        RECEIPT_CUSTOMER,
+        RECEIPT_MERCHANT,
+        RECEIPT_REFERRAL,
+        RECEIPT_CONTRACT,
+        RECEIPT_LINEFEED
+    }
+
 }
