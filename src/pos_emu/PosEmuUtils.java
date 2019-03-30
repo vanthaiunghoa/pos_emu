@@ -18,7 +18,7 @@ class PosEmuUtils {
         LOG_LEVEL_ALL
     }
 
-    private static void DisplayLog(String messageToLog, LogType logType) {
+    private static String DisplayLog(String messageToLog, LogType logType) {
         String logMessage = "";
         String strType;
         
@@ -44,8 +44,26 @@ class PosEmuUtils {
         
         // Display the log
         System.out.println(logMessage);
+        return logMessage;
     }
     
+    private static void DisplayLog(FXML_LogWindowController logWindowController, String messageToLog, LogType logType) {
+        // Add log in the log window
+        logWindowController.LogWindowAddMsg(DisplayLog(messageToLog, logType));
+    }
+    
+    public static void DisplayLogInfo(FXML_LogWindowController logWindowController, String messageToLog) {
+        DisplayLog(logWindowController, messageToLog, LogType.LOG_LEVEL_INFO);
+    }
+    
+    public static void DisplayLogError(FXML_LogWindowController logWindowController, String messageToLog) {
+        DisplayLog(logWindowController, messageToLog, LogType.LOG_LEVEL_ERR);
+    }
+
+    public static void DisplayLogWarning(FXML_LogWindowController logWindowController, String messageToLog) {
+        DisplayLog(logWindowController, messageToLog, LogType.LOG_LEVEL_WARNING);
+    }
+
     public static void DisplayLogInfo(String messageToLog) {
         DisplayLog(messageToLog, LogType.LOG_LEVEL_INFO);
     }

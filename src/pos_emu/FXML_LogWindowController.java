@@ -7,9 +7,12 @@ package pos_emu;
 
 import java.net.URL;
 import java.util.ResourceBundle;
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.control.Label;
+import javafx.scene.control.ListView;
+import javafx.scene.control.ScrollPane;
+import javafx.scene.control.TextArea;
 
 /**
  *
@@ -18,11 +21,17 @@ import javafx.scene.control.Label;
 public class FXML_LogWindowController implements Initializable {
     
     @FXML
-    public Label LabelStart;
+    public ListView LogListView;
     
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        LabelStart.setText("BUTTON 0 PRESSED");
-    }    
+        LogListView.setEditable(false);
+    }
 
+    public void LogWindowAddMsg(String c) {
+        Platform.runLater(() -> {
+            LogListView.getItems().add(LogListView.getItems().size(), c);
+            LogListView.scrollTo(c);
+        });
+    }
 }

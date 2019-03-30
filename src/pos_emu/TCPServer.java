@@ -13,25 +13,27 @@ public class TCPServer
     private final int internalTcpPort;
     private ServerSocket inSocket;
     private final CommandInterpreter internalCmdInterpreter;
+    private final FXML_LogWindowController internalLogController;
     
-    TCPServer(CommandInterpreter cmdInter, int TcpPort)
+    TCPServer(CommandInterpreter cmdInter, int TcpPort, FXML_LogWindowController logger)
     {        
         // Constructor
         internalTcpPort = TcpPort;     
         internalCmdInterpreter = cmdInter;
+        internalLogController = logger;
     }
     
     public void StartTCPServer()
     {
         // Start the server
-        PosEmuUtils.DisplayLogInfo("Starting TCP-IP server : " + internalTcpPort);
+        PosEmuUtils.DisplayLogInfo(internalLogController, "Starting TCP-IP server : " + internalTcpPort);
         
         // Create a socket on the predefined port
         try {
             inSocket = new ServerSocket(internalTcpPort);
         } catch (IOException e)
         {
-            PosEmuUtils.DisplayLogError("Error Starting TCP server:" + e);
+            PosEmuUtils.DisplayLogError(internalLogController, "Error Starting TCP server:" + e);
         }         
     }
     
@@ -42,7 +44,7 @@ public class TCPServer
             StartTCPServer();
         } catch (IOException e)
         {
-            PosEmuUtils.DisplayLogError("Error ReStarting TCP server:" + e);
+            PosEmuUtils.DisplayLogError(internalLogController, "Error ReStarting TCP server:" + e);
         }          
     }
     
@@ -61,7 +63,7 @@ public class TCPServer
                     if (clientSentence == null) {
                         clientSentence = "WARNING empty received\n";
                     }
-                    PosEmuUtils.DisplayLogInfo("Received: " + clientSentence);
+                    PosEmuUtils.DisplayLogInfo(internalLogController, "Received: " + clientSentence);
                     
                     // Execute the command
                     internalCmdInterpreter.ExecuteCommand(clientSentence);
@@ -70,14 +72,14 @@ public class TCPServer
                     try {
                         in = new FileInputStream("e:\\rsp.json");
                     } catch(FileNotFoundException ex) {
-                        PosEmuUtils.DisplayLogError("File not found - " + ex);
+                        PosEmuUtils.DisplayLogError(internalLogController, "File not found - " + ex);
                     }
                     
                     byte[] bytes = new byte[16 * 1024];
                     
                     int count;
                     while ((count = in.read(bytes)) > 0) {
-                        PosEmuUtils.DisplayLogInfo("bytes: " + new String(bytes, "UTF-8"));
+                        PosEmuUtils.DisplayLogInfo(internalLogController, "bytes: " + new String(bytes, "UTF-8"));
                         outToClient.write(bytes, 0, count);
                     }
                     
@@ -85,12 +87,12 @@ public class TCPServer
                     outToClient.close();
                 }
                 catch(Exception e) {
-                    PosEmuUtils.DisplayLogError("Network Error: " + e);    
+                    PosEmuUtils.DisplayLogError(internalLogController, "Network Error: " + e);    
                 }
                 Thread.sleep(1);
             }
         } catch (InterruptedException e) {
-            PosEmuUtils.DisplayLogError("Network Error: " + e);
+            PosEmuUtils.DisplayLogError(internalLogController, "Network Error: " + e);
         }
     }
 }

@@ -121,6 +121,10 @@ public class FXMLDocumentController implements Initializable {
         eventKeyCode = PosEnums.PosKeyCode.NUM_MENU;
     }
     @FXML
+    private void ButtonTest(ActionEvent event) {
+        OutputLabel.setText("TEST PRESSED");
+    }
+    @FXML
     private void ButtonCancelEvent(ActionEvent event) {
         OutputLabel.setText("BUTTON CANCEL PRESSED");
         eventAvailable = PosEnums.PosEvent.KEY_PRESSED;

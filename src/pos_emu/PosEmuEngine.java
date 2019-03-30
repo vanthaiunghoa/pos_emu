@@ -36,6 +36,7 @@ class PosEmuEngine {
     // Modules
     private final Pos_emu internalPosEmu;
     private final FXMLDocumentController internalIhmController;
+    private final FXML_LogWindowController internalLogController;
     private final ParamConfigFile internalParamData;
     private C_icc m_icc;
     
@@ -56,9 +57,10 @@ class PosEmuEngine {
     /*
     * Constructor
      */
-    PosEmuEngine(Pos_emu posEmuController, FXMLDocumentController ihmController, ParamConfigFile theParamData, C_icc module_icc) {
+    PosEmuEngine(Pos_emu posEmuController, FXMLDocumentController ihmController, ParamConfigFile theParamData, C_icc module_icc, FXML_LogWindowController logController) {
         // Set controller to IHM
         internalIhmController = ihmController;
+        internalLogController = logController;
         internalParamData = theParamData;
         internalPosEmu = posEmuController;
         m_icc = module_icc;
@@ -78,7 +80,7 @@ class PosEmuEngine {
 
         switch (currentState) {
             case STATE_IDLE:
-                PosEmuUtils.DisplayLogInfo("STATE IDLE");
+                PosEmuUtils.DisplayLogInfo(internalLogController, "STATE IDLE");
                 if (Integer.parseInt(internalParamData.GetIdleType()) != 0) {
                     // A logo is displayed
                     DisplayImage(internalParamData.GetLogo());
@@ -90,30 +92,30 @@ class PosEmuEngine {
                 break;
 
             case STATE_MENU_SCREEN:
-                PosEmuUtils.DisplayLogInfo("STATE MENU SCREEN");
-                DisplayLine(CenterMessage("APPLI 1"), POS_COLOR_GREY, 0, 100, FONT_CHAR_SIZE);
-                DisplayLine(CenterMessage("APPLI 2"), POS_COLOR_GREY, 0, 130, FONT_CHAR_SIZE);
-                DisplayLine(CenterMessage("APPLI 3"), POS_COLOR_GREY, 0, 160, FONT_CHAR_SIZE);
-                DisplayLine(CenterMessage("APPLI 4"), POS_COLOR_GREY, 0, 190, FONT_CHAR_SIZE);
+                PosEmuUtils.DisplayLogInfo(internalLogController, "STATE MENU SCREEN");
+                DisplayLine(CenterMessage("ADS APPLI"), POS_COLOR_GREY, 0, 100, FONT_CHAR_SIZE);
+                DisplayLine(CenterMessage("ADM"), POS_COLOR_GREY, 0, 130, FONT_CHAR_SIZE);
+                DisplayLine(CenterMessage("BANCAIRE EMV"), POS_COLOR_GREY, 0, 160, FONT_CHAR_SIZE);
+                DisplayLine(CenterMessage("SANS CONTACT"), POS_COLOR_GREY, 0, 190, FONT_CHAR_SIZE);
                 break;
 
             case STATE_AMOUNT:
                 str = strAmountInteger + "," + strAmountDecimal + " EUR";
-                PosEmuUtils.DisplayLogInfo("STATE AMOUNT = " + str);
+                PosEmuUtils.DisplayLogInfo(internalLogController, "STATE AMOUNT = " + str);
                 // 2 lines of 16 characters are displayed
                 DisplayLine(CenterMessage("DEBIT"), POS_COLOR_GREY, 0, 100, FONT_CHAR_SIZE);
                 DisplayLine(str, POS_COLOR_GREY, 0, 150, FONT_CHAR_SIZE);
                 break;
 
             case STATE_CARD_WAITING:
-                PosEmuUtils.DisplayLogInfo("STATE CARD WAITING");
+                PosEmuUtils.DisplayLogInfo(internalLogController, "STATE CARD WAITING");
                 str = strAmountInteger + "," + strAmountDecimal + " EUR";
                 DisplayLine(CenterMessage("INSEREZ CARTE"), POS_COLOR_GREY, 0, 100, FONT_CHAR_SIZE);
                 DisplayLine(CenterMessage(str), POS_COLOR_RED, 0, 170, FONT_CHAR_SIZE);
                 break;
 
             case STATE_TRANSACTION_ICC:
-                PosEmuUtils.DisplayLogInfo("STATE TRANSACTION");
+                PosEmuUtils.DisplayLogInfo(internalLogController, "STATE TRANSACTION");
                 DisplayLine(CenterMessage("TRANSACTION"), POS_COLOR_GREY, 0, 100, FONT_CHAR_SIZE);
                 DisplayLine(CenterMessage("CARTE"), POS_COLOR_GREY, 0, 150, FONT_CHAR_SIZE);
                 DisplayLine(CenterMessage("EN COURS"), POS_COLOR_GREY, 0, 170, FONT_CHAR_SIZE);
@@ -153,7 +155,7 @@ class PosEmuEngine {
                 break;
 
             case STATE_TRANSACTION_MAGSTRIPE:
-                PosEmuUtils.DisplayLogInfo("STATE TRANSACTION");
+                PosEmuUtils.DisplayLogInfo(internalLogController, "STATE TRANSACTION");
                 DisplayLine(CenterMessage("TRANSACTION"), POS_COLOR_GREY, 0, 100, FONT_CHAR_SIZE);
                 DisplayLine(CenterMessage("PISTE"), POS_COLOR_GREY, 0, 150, FONT_CHAR_SIZE);
                 DisplayLine(CenterMessage("EN COURS"), POS_COLOR_GREY, 0, 170, FONT_CHAR_SIZE);
@@ -163,7 +165,7 @@ class PosEmuEngine {
                 break;
 
             case STATE_TRANSACTION_CLESS:
-                PosEmuUtils.DisplayLogInfo("STATE TRANSACTION");
+                PosEmuUtils.DisplayLogInfo(internalLogController, "STATE TRANSACTION");
                 DisplayLine(CenterMessage("TRANSACTION"), POS_COLOR_GREY, 0, 100, FONT_CHAR_SIZE);
                 DisplayLine(CenterMessage("CONTACTLESS"), POS_COLOR_GREY, 0, 150, FONT_CHAR_SIZE);
                 DisplayLine(CenterMessage("EN COURS"), POS_COLOR_GREY, 0, 170, FONT_CHAR_SIZE);
@@ -173,7 +175,7 @@ class PosEmuEngine {
                 break;
 
             case STATE_PIN_ENTRY:
-                PosEmuUtils.DisplayLogInfo("STATE PIN ENTRY: PIN=" + PinCode);
+                PosEmuUtils.DisplayLogInfo(internalLogController, "STATE PIN ENTRY: PIN=" + PinCode);
                 str = strAmountInteger + "," + strAmountDecimal + " EUR";
                 DisplayLine(CenterMessage("DEBIT"), POS_COLOR_GREY, 0, 100, FONT_CHAR_SIZE);
                 DisplayLine(str, POS_COLOR_GREY, 0, 130, FONT_CHAR_SIZE);
@@ -186,54 +188,54 @@ class PosEmuEngine {
                 break;
 
             case STATE_PIN_RESULT_OK:
-                PosEmuUtils.DisplayLogInfo("STATE PIN RESULT OK");
+                PosEmuUtils.DisplayLogInfo(internalLogController, "STATE PIN RESULT OK");
                 DisplayLine(CenterMessage("CODE BON"), POS_COLOR_GREY, 0, 100, FONT_CHAR_SIZE);
                 break;
 
             case STATE_PIN_RESULT_NOK:
-                PosEmuUtils.DisplayLogInfo("STATE PIN RESULT KO");
+                PosEmuUtils.DisplayLogInfo(internalLogController, "STATE PIN RESULT KO");
                 DisplayLine(CenterMessage("CODE FAUX"), POS_COLOR_GREY, 0, 100, FONT_CHAR_SIZE);
                 break;
 
             case STATE_AUTORISATION:
-                PosEmuUtils.DisplayLogInfo("STATE AUTORISATION");
+                PosEmuUtils.DisplayLogInfo(internalLogController, "STATE AUTORISATION");
                 DisplayLine(CenterMessage("AUTORISATION"), POS_COLOR_GREY, 0, 100, FONT_CHAR_SIZE);
                 DisplayLine(CenterMessage("EN COURS"), POS_COLOR_GREY, 0, 150, FONT_CHAR_SIZE);
                 break;
 
             case STATE_TRANSACTION_RESULT_OK:
-                PosEmuUtils.DisplayLogInfo("STATE TRX RESULT OK");
+                PosEmuUtils.DisplayLogInfo(internalLogController, "STATE TRX RESULT OK");
                 DisplayLine(CenterMessage("PAIEMENT ACCEPTE"), POS_COLOR_GREY, 0, 100, FONT_CHAR_SIZE);
                 break;
 
             case STATE_TRANSACTION_RESULT_NOK:
-                PosEmuUtils.DisplayLogInfo("STATE TRX RESULT KO");
+                PosEmuUtils.DisplayLogInfo(internalLogController, "STATE TRX RESULT KO");
                 DisplayLine(CenterMessage("PAIEMENT REFUSE"), POS_COLOR_GREY, 0, 100, FONT_CHAR_SIZE);
                 break;
 
             case STATE_PRINT_CUSTOMER_RECEIPT:
-                PosEmuUtils.DisplayLogInfo("STATE PRINT CUSTOMER RECEIPT");
+                PosEmuUtils.DisplayLogInfo(internalLogController, "STATE PRINT CUSTOMER RECEIPT");
                 DisplayLine(CenterMessage("IMPRESSION EN COURS"), POS_COLOR_GREY, 0, 100, FONT_CHAR_SIZE);
                 DisplayLine(CenterMessage("VALIDEZ"), POS_COLOR_GREY, 0, 150, FONT_CHAR_SIZE);
                 break;
 
             case STATE_PRINT_MERCHANT_RECEIPT:
-                PosEmuUtils.DisplayLogInfo("STATE PRINT MERCHANT RECEIPT");
+                PosEmuUtils.DisplayLogInfo(internalLogController, "STATE PRINT MERCHANT RECEIPT");
                 DisplayLine(CenterMessage("IMPRESSION EN COURS"), POS_COLOR_GREY, 0, 100, FONT_CHAR_SIZE);
                 break;
 
             case STATE_CARD_REMOVED:
-                PosEmuUtils.DisplayLogInfo("STATE CARTE REMOVED");
+                PosEmuUtils.DisplayLogInfo(internalLogController, "STATE CARTE REMOVED");
                 DisplayLine(CenterMessage("CARTE ARRACHEE"), POS_COLOR_GREY, 0, 100, FONT_CHAR_SIZE);
                 break;
 
             case STATE_WAIT_CARD_REMOVE:
-                PosEmuUtils.DisplayLogInfo("STATE WAIT CARD REMOVE");
+                PosEmuUtils.DisplayLogInfo(internalLogController, "STATE WAIT CARD REMOVE");
                 DisplayLine(CenterMessage("RETIREZ CARTE"), POS_COLOR_GREY, 0, 100, FONT_CHAR_SIZE);
                 break;
 
             default:
-                PosEmuUtils.DisplayLogInfo("STATE DEFAULT");
+                PosEmuUtils.DisplayLogInfo(internalLogController, "STATE DEFAULT");
                 break;
         }
     }

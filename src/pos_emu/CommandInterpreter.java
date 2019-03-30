@@ -20,10 +20,12 @@ import javafx.scene.text.Font;
 public class CommandInterpreter {
 
     private final FXMLDocumentController internalIhmController;
+    private final FXML_LogWindowController internalLogController;
     
-    CommandInterpreter(FXMLDocumentController ihmController) {
+    CommandInterpreter(FXMLDocumentController ihmController, FXML_LogWindowController logWindowController) {
         // Set controller to IHM
         internalIhmController = ihmController;
+        internalLogController = logWindowController;        
     }
     
     /**
@@ -82,8 +84,8 @@ public class CommandInterpreter {
         // Get the command and the version
         String cmd = msg.GetCommand();
         String version = msg.GetVersion();
-        PosEmuUtils.DisplayLogInfo("json cmd=" + cmd);
-        PosEmuUtils.DisplayLogInfo("json version=" + version);
+        PosEmuUtils.DisplayLogInfo(internalLogController, "json cmd=" + cmd);
+        PosEmuUtils.DisplayLogInfo(internalLogController, "json version=" + version);
         
         // Configure label to display
         String labelMsg = msg.GetMessageToDisplay();

@@ -4,9 +4,8 @@
 <?import java.lang.*?>
 <?import javafx.scene.layout.*?>
 
-<Pane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="401.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1">
+<AnchorPane fx:id="LogAnchorPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="pos_emu.FXML_LogWindowController">
    <children>
-      <ListView prefHeight="400.0" prefWidth="401.0" />
-      <Label fx:id="LabelStart" layoutX="8.0" layoutY="7.0" text="Log Start ..." />
+      <ListView fx:id="LogListView" layoutX="14.0" layoutY="14.0" prefHeight="376.0" prefWidth="574.0" />
    </children>
-</Pane>
+</AnchorPane>

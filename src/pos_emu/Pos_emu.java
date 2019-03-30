@@ -31,6 +31,27 @@ import javafx.scene.layout.Pane;
 import javafx.scene.text.Font;
 import javafx.stage.WindowEvent;
 
+class pixel_position {
+    double x;
+    double y;
+    
+    double width;
+    double height;
+    
+    pixel_position() {
+        x = 0;
+        y = 0;
+        height = 0;
+        width = 0;
+    }
+    pixel_position(double xx, double yy, double ww, double hh) {
+        x = xx;
+        y = yy;
+        width = ww;
+        height = hh;
+    }
+}
+
 /**
  *
  * @author balacahan
@@ -62,18 +83,26 @@ public class Pos_emu extends Application {
     
     @Override
     public void start(Stage stage) throws Exception {
+        // Display the log window, first
+        pixel_position logWindowPos = DisplayLogWindow();        
+        double mainWindowsPos_X = logWindowPos.x - 500; // logWindowPos.width + 5;
+        double mainWindowsPos_Y = logWindowPos.y - 10;
+        
         //Set up instance instead of using static load() method
         FXMLLoader loader = new FXMLLoader(getClass().getResource("FXMLDocument.fxml"));
         Parent root = loader.load();
 
+        // Start the logger
+        PosEmuUtils.DisplayLogInfo(logWindowController, "Starting Logging ...");
+        
         // First display working directory
-        PosEmuUtils.DisplayLogInfo("Working Directory = " + System.getProperty("user.dir"));
+        PosEmuUtils.DisplayLogInfo(logWindowController, "Working Directory = " + System.getProperty("user.dir"));
                
         //Now we have access to getController() through the instance... don't forget the type cast
         ihmController = (FXMLDocumentController)loader.getController();
         
         // Create instance of CommandInterpreter
-        internalCommandInterpreter = new CommandInterpreter(ihmController);
+        internalCommandInterpreter = new CommandInterpreter(ihmController, logWindowController);
         
         // Load the custom font
         Font.loadFont(Pos_emu.class.getResource("/pos_emu/font/Monospace.ttf").toExternalForm(),16);
@@ -95,7 +124,7 @@ public class Pos_emu extends Application {
         // Initialize ICC Reader Module
         InitializeReaderModule();
         // Create instante of Engine
-        internalPosEmuEngine = new PosEmuEngine(this, ihmController, config_param_data, internal_m_icc);
+        internalPosEmuEngine = new PosEmuEngine(this, ihmController, config_param_data, internal_m_icc, logWindowController);
 
         // Set operations when window is closed
         stage.setOnCloseRequest((WindowEvent we) -> {
@@ -115,18 +144,18 @@ public class Pos_emu extends Application {
         // Add the scene to the stage and launch the stage
         stage.setScene(scene);
         stage.setTitle("INGENICO POS EMULATOR");
+        stage.setX(mainWindowsPos_X);
+        stage.setY(mainWindowsPos_Y);
         stage.show();
-        
-        // Display the log window
-        DisplayLogWindow();
-        
     }
 
     /**
      * Display the window for the log (different stage)
      * 
+     * @return position of the created stage
      */
-    public void DisplayLogWindow() {
+    public pixel_position DisplayLogWindow() {
+        pixel_position stage_pos = new pixel_position();
         try {
             log_stage = new Stage();
             FXMLLoader fxmlLoader=new FXMLLoader(getClass().getResource("FXML_LogWindow.fxml"));
@@ -138,13 +167,23 @@ public class Pos_emu extends Application {
 
             // Now we have access to getController() through the instance... don't forget the type cast
             logWindowController = (FXML_LogWindowController)fxmlLoader.getController();
-            
+
+            // Window not resizable
+            log_stage.setResizable(false);
+
             // Show the window
             log_stage.show();
         } catch (IOException e) {
-            PosEmuUtils.DisplayLogInfo("Error opening window log FXML file !");
+            PosEmuUtils.DisplayLogInfo(logWindowController, "Error opening window log FXML file !");
         }
 
+        stage_pos.x = log_stage.getX();
+        stage_pos.y = log_stage.getY();
+
+        stage_pos.width = log_stage.getWidth();
+        stage_pos.height = log_stage.getHeight();
+
+        return stage_pos;
     }
         
     /**
@@ -154,22 +193,15 @@ public class Pos_emu extends Application {
      */
     public C_icc InitializeReaderModule() {
         if (ihmController.iccCardTypeChoiceBox.getValue() == "VIRTUAL") {
-            PosEmuUtils.DisplayLogInfo("Virtual Reader Selected");
+            PosEmuUtils.DisplayLogInfo(logWindowController, "Virtual Reader Selected");
             initializeIccModule(C_icc.SmartCardManagementType.SMARTCARD_VIRTUAL);
-            
-            // TODO 
-            // Set POS screen
-            Platform.runLater(() -> {
-                logWindowController.LabelStart.setText("Virtual Reader Selected");
-            });     
-            /* */
         } else {
-            PosEmuUtils.DisplayLogInfo("PC/SC Reader Selected");
+            PosEmuUtils.DisplayLogInfo(logWindowController, "PC/SC Reader Selected");
             retIcc = initializeIccModule(C_icc.SmartCardManagementType.SMARTCARD_PCSC);
             if (retIcc != C_err.Icc.ERR_ICC_OK) {
                 internalPosEmuEngine.DisplayOutputLabel("ERROR ACCESSING PCSC");
                 internalPosEmuEngine.SetCheckBox(0);
-                PosEmuUtils.DisplayLogError("Error accessing PCSC reader");
+                PosEmuUtils.DisplayLogError(logWindowController, "Error accessing PCSC reader");
                 initializeIccModule(C_icc.SmartCardManagementType.SMARTCARD_VIRTUAL);
             }
         }
@@ -217,7 +249,7 @@ public class Pos_emu extends Application {
             bufferedReader = new BufferedReader(new FileReader(param_json_path));        
         } catch(FileNotFoundException e) 
         {
-            PosEmuUtils.DisplayLogError("Configuration File not found ! - error " + e);
+            PosEmuUtils.DisplayLogError(logWindowController, "Configuration File not found ! - error " + e);
         }
         
         // Parse the JSON file
@@ -236,7 +268,7 @@ public class Pos_emu extends Application {
         
         // Start TCP/IP listener
         int port = Integer.parseInt(config_param_data.GetPosPort());
-        TCPServer tcpListener = new TCPServer(internalCommandInterpreter, port);
+        TCPServer tcpListener = new TCPServer(internalCommandInterpreter, port, logWindowController);
         tcpListener.StartTCPServer();
         
         // Wait for a command
@@ -244,13 +276,13 @@ public class Pos_emu extends Application {
             do {
                 try {
                     // Infinite loop to be always listening 
-                    PosEmuUtils.DisplayLogInfo("Wait on TCP listener (" + port + ")");
+                    PosEmuUtils.DisplayLogInfo(logWindowController, "Wait on TCP listener (" + port + ")");
                     tcpListener.WaitTCPMessage();
                     
                     // Pause for 100 ms between each thread, i.e. each command
                     Thread.sleep(1);
                 } catch (Exception e) {
-                    PosEmuUtils.DisplayLogError("Network Error: " + e);
+                    PosEmuUtils.DisplayLogError(logWindowController, "Network Error: " + e);
                     
                     // Restart TCP/IP listener                   
                     tcpListener.RestartTCPServer();
@@ -316,7 +348,7 @@ public class Pos_emu extends Application {
     private PosEnums.PosEvent CheckSmartCardEvent() {
         PosEnums.PosEvent ev = PosEnums.PosEvent.NO_EVENT;
         if (bSmartCardPresent != internal_m_icc.IccIsCardPresent()) {
-            PosEmuUtils.DisplayLogInfo("difference");
+            PosEmuUtils.DisplayLogInfo(logWindowController, "difference");
             ev = PosEnums.PosEvent.ICC_INSERTED;
         }
         
