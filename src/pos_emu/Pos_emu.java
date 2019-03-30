@@ -23,9 +23,11 @@ import com.google.gson.Gson;
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.application.Platform;
+import javafx.scene.layout.Pane;
 import javafx.scene.text.Font;
 import javafx.stage.WindowEvent;
 
@@ -40,13 +42,18 @@ public class Pos_emu extends Application {
     final String param_json_path = "src/pos_emu/config/param_pos_emu.json";
     // FXML Document and controller
     FXMLDocumentController ihmController;
+    FXML_LogWindowController logWindowController;
     private CommandInterpreter internalCommandInterpreter;
     private PosEmuEngine internalPosEmuEngine;
     private C_icc internal_m_icc;
 
     private C_err.Icc retIcc;
     private String module_name;
-    
+
+    // For log window
+    Stage log_stage;
+    Scene log_scene;
+
     // Parameters from configuration file
     private ParamConfigFile config_param_data;
     
@@ -109,8 +116,37 @@ public class Pos_emu extends Application {
         stage.setScene(scene);
         stage.setTitle("INGENICO POS EMULATOR");
         stage.show();
+        
+        // Display the log window
+        DisplayLogWindow();
     }
 
+    /**
+     * Display the window for the log (different stage)
+     * 
+     */
+    public void DisplayLogWindow() {
+        try {
+            log_stage = new Stage();
+            FXMLLoader fxmlLoader=new FXMLLoader(getClass().getResource("FXML_LogWindow.fxml"));
+            Pane root = fxmlLoader.load();
+            log_scene = new Scene(root);
+            log_stage.setScene(log_scene);
+            log_stage.setTitle("Log Window");
+            log_stage.initStyle(StageStyle.DECORATED);
+
+            // Now we have access to getController() through the instance... don't forget the type cast
+            logWindowController = (FXML_LogWindowController)fxmlLoader.getController();
+            //logWindowController.initData(log_stage);
+            
+            // Show the window
+            log_stage.show();
+        } catch (IOException e) {
+            PosEmuUtils.DisplayLogInfo("Error opening window log FXML file !");
+        }
+
+    }
+        
     /**
      * Initialize the Reader module according to the checkbox
      * 
