@@ -119,6 +119,7 @@ public class Pos_emu extends Application {
         
         // Display the log window
         DisplayLogWindow();
+        
     }
 
     /**
@@ -137,7 +138,6 @@ public class Pos_emu extends Application {
 
             // Now we have access to getController() through the instance... don't forget the type cast
             logWindowController = (FXML_LogWindowController)fxmlLoader.getController();
-            //logWindowController.initData(log_stage);
             
             // Show the window
             log_stage.show();
@@ -156,6 +156,13 @@ public class Pos_emu extends Application {
         if (ihmController.iccCardTypeChoiceBox.getValue() == "VIRTUAL") {
             PosEmuUtils.DisplayLogInfo("Virtual Reader Selected");
             initializeIccModule(C_icc.SmartCardManagementType.SMARTCARD_VIRTUAL);
+            
+            // TODO 
+            // Set POS screen
+            Platform.runLater(() -> {
+                logWindowController.LabelStart.setText("Virtual Reader Selected");
+            });     
+            /* */
         } else {
             PosEmuUtils.DisplayLogInfo("PC/SC Reader Selected");
             retIcc = initializeIccModule(C_icc.SmartCardManagementType.SMARTCARD_PCSC);

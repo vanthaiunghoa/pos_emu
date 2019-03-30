@@ -5,15 +5,24 @@
  */
 package pos_emu;
 
-import javafx.stage.Stage;
+import java.net.URL;
+import java.util.ResourceBundle;
+import javafx.fxml.FXML;
+import javafx.fxml.Initializable;
+import javafx.scene.control.Label;
 
 /**
  *
  * @author balacahan
  */
-public class FXML_LogWindowController {
-    Stage stage;
-    public void initData(Stage stage) {
-        this.stage=stage;
-    }
+public class FXML_LogWindowController implements Initializable {
+    
+    @FXML
+    public Label LabelStart;
+    
+    @Override
+    public void initialize(URL url, ResourceBundle rb) {
+        LabelStart.setText("BUTTON 0 PRESSED");
+    }    
+
 }
