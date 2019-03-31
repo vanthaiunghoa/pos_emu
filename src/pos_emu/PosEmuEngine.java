@@ -79,6 +79,7 @@ class PosEmuEngine {
 
     /*
      * POS Engine (state machine)
+     *
      */
     public void StartEngine(PosEnums.State stateToFix, boolean clearScreen, PosEnums.PosEvent theEvent) {
         C_err.Icc retIcc;
@@ -688,30 +689,59 @@ class PosEmuEngine {
         if (typeReceipt == PosEnums.PosReceiptType.RECEIPT_LINEFEED) {
             internalReceiptController.ReceiptWindowAddLine("");            
         } else {
-            internalReceiptController.ReceiptWindowAddLine("CARTE BANCAIRE");
-            internalReceiptController.ReceiptWindowAddLine(myTrxContext.GetAid());
-            internalReceiptController.ReceiptWindowAddLine("CB");
-            internalReceiptController.ReceiptWindowAddLine("LE 30/03/2019 A 15:30:23");
-            internalReceiptController.ReceiptWindowAddLine("GL MONTPARNASSE");
-            internalReceiptController.ReceiptWindowAddLine("75PARIS2500676");
-            internalReceiptController.ReceiptWindowAddLine("30002");
-            internalReceiptController.ReceiptWindowAddLine("2500676");
+            String techno;
+            internalReceiptController.ReceiptWindowAddLine("   CARTE BANCAIRE");
+            if (typeCurrentTrxTechno == PosEnums.PosTransactionTechno.TRX_ICC) {
+                internalReceiptController.ReceiptWindowAddLine(myTrxContext.GetAid());
+                techno = "CB";
+            } else if (typeCurrentTrxTechno == PosEnums.PosTransactionTechno.TRX_CLESS) {
+                internalReceiptController.ReceiptWindowAddLine(myTrxContext.GetAid());
+                techno ="SANS CONTACT";
+            } else {
+                techno ="CARTE A PISTE";                
+            }
+            internalReceiptController.ReceiptWindowAddLine(techno);
+            internalReceiptController.ReceiptWindowAddLine(GetDateAndTime());
+            internalReceiptController.ReceiptWindowAddLine("INGENICO PAYMENT");
+            internalReceiptController.ReceiptWindowAddLine("75015 PARIS");
+            internalReceiptController.ReceiptWindowAddLine("30004");
+            internalReceiptController.ReceiptWindowAddLine("1234567");
             internalReceiptController.ReceiptWindowAddLine("95750393100413");
             internalReceiptController.ReceiptWindowAddLine(myTrxContext.GetPan());
             internalReceiptController.ReceiptWindowAddLine("4c5f567fdc4c455c");
             internalReceiptController.ReceiptWindowAddLine("394 001 394024 001480");
-            internalReceiptController.ReceiptWindowAddLine("C @");
+            if ((typeCurrentTrxTechno == PosEnums.PosTransactionTechno.TRX_ICC) 
+                || (typeCurrentTrxTechno == PosEnums.PosTransactionTechno.TRX_CLESS)) {
+                internalReceiptController.ReceiptWindowAddLine("C @");
+            } else {
+                internalReceiptController.ReceiptWindowAddLine("S @");
+            }
             internalReceiptController.ReceiptWindowAddLine("MONTANT");
             internalReceiptController.ReceiptWindowAddLine(myTrxContext.GetAmount());
             internalReceiptController.ReceiptWindowAddLine("DEBIT");
-            if (myTrxContext.GetTrxStatus() == false)
+            if (myTrxContext.GetTrxStatus() == false) {
                 internalReceiptController.ReceiptWindowAddLine("-- ABANDON --");
+            } else {
+                if (typeCurrentTrxTechno == PosEnums.PosTransactionTechno.TRX_MAG) {
+                    // Add a section for signature
+                    internalReceiptController.ReceiptWindowAddLine("   SIGNATURE");
+                    internalReceiptController.ReceiptWindowAddLine("");
+                    internalReceiptController.ReceiptWindowAddLine("");
+                }                
+            }
             if (typeReceipt == PosEnums.PosReceiptType.RECEIPT_CUSTOMER)
-                internalReceiptController.ReceiptWindowAddLine("TICKET CLIENT");
+                internalReceiptController.ReceiptWindowAddLine(  "TICKET CLIENT");
             else
-                internalReceiptController.ReceiptWindowAddLine("TICKET COMMERCANT");
+                internalReceiptController.ReceiptWindowAddLine(  "TICKET COMMERCANT");
             internalReceiptController.ReceiptWindowAddLine("A CONSERVER");
         }
     }
 
+    private String GetDateAndTime() {
+        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
+        LocalDateTime now = LocalDateTime.now();
+        String display = dtf.format(now);
+        
+        return display;
+    }
 }
