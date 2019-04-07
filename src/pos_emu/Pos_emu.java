@@ -28,6 +28,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.application.Platform;
 import javafx.scene.layout.Pane;
+import javafx.scene.media.AudioClip;
 import javafx.scene.text.Font;
 import javafx.stage.WindowEvent;
 
@@ -85,9 +86,16 @@ public class Pos_emu extends Application {
     
     // Smart card card presence/absence detection
     private boolean bSmartCardPresent = false;
+
+    // To manage sound of click
+    String clickSoundPath = "/pos_emu/resource/UI_Blip_01.wav";
+    AudioClip mClickSound;
     
     @Override
     public void start(Stage stage) throws Exception {
+        // Initialize click sound
+        mClickSound = new AudioClip(this.getClass().getResource(clickSoundPath).toExternalForm());
+
         // Display the log window, first
         pixel_position logWindowPos = DisplayLogWindow();        
         double mainWindowsPos_X = logWindowPos.x - 500; // logWindowPos.width + 5;
@@ -377,6 +385,7 @@ public class Pos_emu extends Application {
                         switch(theEvent)
                         {
                             case KEY_PRESSED:
+                                mClickSound.play();
                                 PosEnums.PosKeyCode theKey = ihmController.GetKeyCode();
                                 internalPosEmuEngine.EventReceived(theEvent, theKey);
                                 break;
