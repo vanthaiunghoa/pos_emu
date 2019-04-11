@@ -29,6 +29,12 @@ public class TransactionContext {
     public String GetPan() {
         return m_trxPan;
     }
+    public String GetMaskedPan() {
+        String mask = "------------";
+        String left = m_trxPan.substring(m_trxPan.length() - 4);
+        
+        return mask+left;
+    }
 
     public void SetAid(String aa) {
         m_trxAid = aa;

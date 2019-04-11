@@ -707,7 +707,11 @@ class PosEmuEngine {
             internalReceiptController.ReceiptWindowAddLine("30004");
             internalReceiptController.ReceiptWindowAddLine("1234567");
             internalReceiptController.ReceiptWindowAddLine("95750393100413");
-            internalReceiptController.ReceiptWindowAddLine(myTrxContext.GetPan());
+            if (typeReceipt == PosEnums.PosReceiptType.RECEIPT_CUSTOMER) {
+                internalReceiptController.ReceiptWindowAddLine(myTrxContext.GetMaskedPan());
+            } else {
+                internalReceiptController.ReceiptWindowAddLine(myTrxContext.GetPan());            
+            }
             internalReceiptController.ReceiptWindowAddLine("4c5f567fdc4c455c");
             internalReceiptController.ReceiptWindowAddLine("394 001 394024 001480");
             if ((typeCurrentTrxTechno == PosEnums.PosTransactionTechno.TRX_ICC) 
