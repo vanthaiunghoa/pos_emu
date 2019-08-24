@@ -53,6 +53,8 @@ class PosEmuEngine {
     private C_err.Icc retIcc;
     private String module_name;
     private String PinCode;
+    
+    private int transactionStatus = 0;
 
     private PosEnums.PosTransactionTechno typeCurrentTrxTechno;
 
@@ -121,6 +123,7 @@ class PosEmuEngine {
                 break;
 
             case STATE_CARD_WAITING:
+                // Wait for key entry
                 PosEmuUtils.DisplayLogInfo(internalLogController, "STATE CARD WAITING");
                 str = strAmountInteger + "," + strAmountDecimal + " EUR";
                 myTrxContext.SetAmount(str);
@@ -305,6 +308,10 @@ class PosEmuEngine {
                 break;
 
             case STATE_AMOUNT:
+                // Initialize transaction status
+                transactionStatus = 0;
+                
+                // Select correct state according to the event
                 if (receivedEvent == PosEnums.PosEvent.KEY_PRESSED) {
                     if (keyValue == PosEnums.PosKeyCode.NUM_CORR) {
                         RemoveDigitFromAmount();
@@ -381,8 +388,17 @@ class PosEmuEngine {
 
                     if (receivedEvent == PosEnums.PosEvent.KEY_PRESSED) {
                         if (keyValue == PosEnums.PosKeyCode.NUM_CANCEL) {
-                            // Cancel key pressed
-                            StartEngine(PosEnums.State.STATE_IDLE, true);
+                            // Set transaction status to KO
+                            transactionStatus = -1;
+                            
+                            // Cancel key pressed, check if card still present
+                            if (m_icc.IccIsCardPresent() == false) {
+                                // No card present, so move to idle
+                                StartEngine(PosEnums.State.STATE_IDLE, true);
+                            } else {
+                                // Card still present, so move to remove card state
+                                StartEngine(PosEnums.State.STATE_WAIT_CARD_REMOVE, true);
+                            }
                         } else if (IsNumeric(keyValue)) {
                             // Numeric key pressed
                             PinCode += GetCharFromKeyValue(keyValue);
@@ -454,9 +470,13 @@ class PosEmuEngine {
 
             case STATE_WAIT_CARD_REMOVE:                
                 if (receivedEvent == PosEnums.PosEvent.ICC_INSERTED) {
-                    StartEngine(PosEnums.State.STATE_PRINT_CUSTOMER_RECEIPT, true);
-                    // Start a timer
-                    internalIhmController.StartTimerEvent(TIMER_1_SECONDS);
+                    if (transactionStatus == 0) {
+                        StartEngine(PosEnums.State.STATE_PRINT_CUSTOMER_RECEIPT, true);
+                        // Start a timer
+                        internalIhmController.StartTimerEvent(TIMER_1_SECONDS); 
+                    } else {
+                        StartEngine(PosEnums.State.STATE_IDLE, true);
+                    }
                 }
                 break;
 
